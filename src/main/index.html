@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- 
+  TimeLex — Automated Legal Time Capture
+  Copyright (c) 2026 Kone Tshivhinda
+  
+  ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE
+  Developed exclusively for MB Motsoeneng Bill Attorneys Software Engineer Assessment 2026
+  
+  ALL RIGHTS RESERVED
+  This work is protected by copyright law. Submission of this assessment does not constitute 
+  transfer of ownership. All intellectual property rights remain with the creator.
+  
+  This code may not be used in production without express written permission.
+  For commercial licensing inquiries, contact: erictshivhinda@gmail.com
+  
+  IMPORTANT: This assessment submission is provided under Assessment-Specific License terms
+  as documented in the complete project repository. Intentional limitations exist for 
+  assessment purposes only (not for production implementation).
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="Kone Tshivhinda" />
+  <meta name="copyright" content="Copyright (c) 2026 Kone Tshivhinda" />
+  <meta name="license" content="Assessment-Specific License - Not for production use" />
+  <title>TimeLex — Automated Legal Time Capture | Assessment Prototype</title>
+  
+  <!-- 
+  ASSESSMENT WATERMARK: Visible in print and screenshots to prevent unauthorized production use
+  This watermark appears when printing or capturing screenshots of the application
+  -->
+  <style>
+    @media print, screen {
+      body::after {
+        content: "ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE | © 2026 Kone Tshivhinda";
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0,0,0,0.05);
+        color: #666;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        z-index: 9999;
+        pointer-events: none;
+      }
+    }
+  </style>
+  
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- 
+  PROJECT: TimeLex — Automated Legal Time Capture
+  AUTHOR: Kone Tshivhinda
+  DATE: April 23, 2026
+  PURPOSE: Software Engineer Assessment for MB Motsoeneng Bill Attorneys
+  
+  FILE STRUCTURE OVERVIEW:
+  - Sidebar navigation component
+  - Main content area with 4 views (Dashboard, Live Capture, Time Entries, Invoice)
+  - Notification system
+  - Assessment-specific copyright protections
+  -->
+
+  <!-- SIDEBAR NAVIGATION COMPONENT -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">⚖</span>
+      <span class="logo-text">TimeLex</span>
+    </div>
+
+    <nav class="nav">
+      <a href="#" class="nav-item active" data-view="dashboard">
+        <span class="nav-icon">◈</span> Dashboard
+      </a>
+      <a href="#" class="nav-item" data-view="capture">
+        <span class="nav-icon">◎</span> Live Capture
+      </a>
+      <a href="#" class="nav-item" data-view="entries">
+        <span class="nav-icon">≡</span> Time Entries
+      </a>
+      <a href="#" class="nav-item" data-view="invoice">
+        <span class="nav-icon">◫</span> Invoice
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar">SC</div>
+      <div class="user-info">
+        <div class="user-name">Stephanie Chetty</div>
+        <div class="user-role">Associate Partner</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT AREA - 4 VIEWS -->
+  <main class="main">
+    
+    <!-- 
+    VIEW 1: DASHBOARD
+    Purpose: Overview of time tracking status, statistics, and pending actions
+    Features:
+      - Real-time statistics (today's hours, month-to-date, pending reviews)
+      - Monthly billing target progress visualization
+      - Live activity feed from integrated tools
+      - Draft entries requiring review
+    -->
+    <div id="view-dashboard" class="view active">
+      <header class="page-header">
+        <div>
+          <h1>Good morning, Stephanie</h1>
+          <p class="subtitle">Wednesday, 22 April 2026 &nbsp;·&nbsp; <span class="live-dot"></span> Auto-capture <span class="active-text">active</span></p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-ghost" onclick="App.toggleCapture()">
+            <span id="capture-toggle-text">Pause Capture</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- STATISTICS CARDS SECTION -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Today's Billable Hours</div>
+          <div class="stat-value" id="stat-today">0.0 h</div>
+          <div class="stat-sub" id="stat-today-units">0 units</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Month to Date</div>
+          <div class="stat-value" id="stat-month">47.8 h</div>
+          <div class="stat-sub">of 150 h target</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Review</div>
+          <div class="stat-value pending-val" id="stat-pending">0</div>
+          <div class="stat-sub">draft entries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Matters Active</div>
+          <div class="stat-value">8</div>
+          <div class="stat-sub">today</div>
+        </div>
+      </div>
+
+      <!-- BILLING TARGET PROGRESS SECTION -->
+      <div class="card target-card">
+        <div class="card-header">
+          <span>Monthly Billing Target</span>
+          <span class="target-pct" id="target-pct">31.9%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 31.9%"></div>
+        </div>
+        <div class="target-detail">
+          <span id="target-billed">47.8 h billed</span>
+          <span>150 h target &nbsp;·&nbsp; <strong id="target-remaining">102.2 h remaining</strong></span>
+        </div>
+      </div>
+
+      <!-- DUAL-CONTENT SECTION: ACTIVITY FEED + DRAFT ENTRIES -->
+      <div class="two-col">
+        <div class="card feed-card">
+          <div class="card-header">
+            <span>Live Activity Feed</span>
+            <span class="badge pulse" id="feed-badge">Detecting…</span>
+          </div>
+          <div class="feed-list" id="feed-list">
+            <div class="feed-empty">Monitoring your Outlook, calendar and documents…</div>
+          </div>
+        </div>
+
+        <div class="card entries-preview-card">
+          <div class="card-header">
+            <span>Draft Entries <small>(needs review)</small></span>
+            <button class="btn-sm" onclick="App.approveAll()">Approve All</button>
+          </div>
+          <div class="draft-list" id="draft-list">
+            <div class="feed-empty">No pending entries</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 
+    VIEW 2: LIVE CAPTURE
+    Purpose: Real-time activity monitoring and manual time entry
+    Features:
+      - Integration status indicators
+      - Live feed of detected activities
+      - Manual entry form for billable activities
+    -->
+    <div id="view-capture" class="view">
+      <header class="page-header">
+        <div>
+          <h1>Live Capture</h1>
+          <p class="subtitle">Activities detected in real-time from connected tools</p>
+        </div>
+        <div class="capture-status" id="capture-status-badge">
+          <span class="live-dot"></span> Monitoring active
+        </div>
+      </header>
+
+      <!-- TOOL INTEGRATION STATUS -->
+      <div class="integrations-row">
+        <div class="integration-chip connected">
+          <span>✉</span> Outlook
+        </div>
+        <div class="integration-chip connected">
+          <span>📅</span> Google Calendar
+        </div>
+        <div class="integration-chip connected">
+          <span>📄</span> Word / Docs
+        </div>
+        <div class="integration-chip">
+          <span>📞</span> Teams / Calls
+        </div>
+        <div class="integration-chip connected">
+          <span>🔗</span> Ghost Practice
+        </div>
+      </div>
+
+      <!-- DUAL-CONTENT SECTION: DETECTED ACTIVITIES + MANUAL ENTRY -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span>Detected Activities</span></div>
+          <div id="capture-feed" class="feed-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span>Manual Entry</span></div>
+          <div class="manual-form">
+            <div class="form-group">
+              <label>Activity Type</label>
+              <select id="manual-type">
+                <option>Email</option>
+                <option>Meeting</option>
+                <option>Phone Call</option>
+                <option>Document Drafting</option>
+                <option>Research</option>
+                <option>Court Attendance</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Matter Number</label>
+              <input type="text" id="manual-matter" placeholder="e.g. 2024/0512-LIT" list="matters-list" />
+              <datalist id="matters-list">
+                <option value="2024/0512-LIT">Nkosi v Absa Bank</option>
+                <option value="2024/0888-LIT">Dlamini Urgent Application</option>
+                <option value="2025/0103-COM">Motlhabi Holdings SLA</option>
+                <option value="2025/0217-LAB">Perivolaris Labour Matter</option>
+                <option value="2025/0391-CON">Botha Property Transfer</option>
+              </datalist>
+            </div>
+            <div class="form-group">
+              <label>Duration (minutes)</label>
+              <input type="number" id="manual-duration" value="6" min="6" step="6" />
+            </div>
+            <div class="form-group">
+              <label>Narration</label>
+              <textarea id="manual-narration" rows="3" placeholder="Brief description of work done…"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Billable?</label>
+              <div class="toggle-row">
+                <label class="toggle">
+                  <input type="checkbox" id="manual-billable" checked />
+                  <span class="slider"></span>
+                </label>
+                <span id="billable-label">Billable</span>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="App.addManualEntry()">Add Entry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 
+    VIEW 3: TIME ENTRIES
+    Purpose: View and manage all captured time entries
+    Features:
+      - Matter filtering
+      - Detailed time entry table with status indicators
+      - Summary statistics
+    -->
+    <div id="view-entries" class="view">
+      <header class="page-header">
+        <div>
+          <h1>Time Entries</h1>
+          <p class="subtitle">All captured entries for April 2026</p>
+        </div>
+        <div class="header-actions">
+          <select class="btn-ghost" id="filter-matter">
+            <option value="">All Matters</option>
+            <option value="2024/0512-LIT">2024/0512-LIT</option>
+            <option value="2024/0888-LIT">2024/0888-LIT</option>
+            <option value="2025/0103-COM">2025/0103-COM</option>
+            <option value="2025/0217-LAB">2025/0217-LAB</option>
+            <option value="2025/0391-CON">2025/0391-CON</option>
+          </select>
+        </div>
+      </header>
+
+      <div class="card">
+        <table class="entries-table" id="entries-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Matter</th>
+              <th>Activity</th>
+              <th>Narration</th>
+              <th>Units</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="entries-body">
+          </tbody>
+        </table>
+        <div class="table-footer" id="entries-footer">
+          <span id="entries-summary"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 
+    VIEW 4: INVOICE GENERATOR
+    Purpose: Create invoices from approved time entries
+    Features:
+      - Matter selection
+      - Invoice type configuration
+      - Rate and VAT settings
+      - Invoice preview and export
+    -->
+    <div id="view-invoice" class="view">
+      <header class="page-header">
+        <div>
+          <h1>Invoice Generator</h1>
+          <p class="subtitle">Generate pro-forma or final invoice from approved entries</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-ghost" onclick="App.printInvoice()">Print / Export</button>
+          <button class="btn-primary" onclick="App.pushToGP()">Push to Ghost Practice</button>
+        </div>
+      </header>
+
+      <div class="two-col invoice-layout">
+        <div class="card invoice-settings">
+          <div class="card-header"><span>Invoice Settings</span></div>
+          <div class="form-group">
+            <label>Matter</label>
+            <select id="inv-matter" onchange="App.updateInvoicePreview()">
+              <option value="all">All Matters (Consolidated)</option>
+              <option value="2024/0512-LIT">2024/0512-LIT — Nkosi v Absa Bank</option>
+              <option value="2024/0888-LIT">2024/0888-LIT — Dlamini Urgent Application</option>
+              <option value="2025/0103-COM">2025/0103-COM — Motlhabi Holdings SLA</option>
+              <option value="2025/0217-LAB">2025/0217-LAB — Perivolaris Labour Matter</option>
+              <option value="2025/0391-CON">2025/0391-CON — Botha Property Transfer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Invoice Type</label>
+            <select id="inv-type">
+              <option>Pro-Forma</option>
+              <option>Final Invoice</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Hourly Rate (R)</label>
+            <input type="number" id="inv-rate" value="3500" onchange="App.updateInvoicePreview()" />
+          </div>
+          <div class="form-group">
+            <label>VAT Rate (%)</label>
+            <input type="number" id="inv-vat" value="15" onchange="App.updateInvoicePreview()" />
+          </div>
+          <button class="btn-primary" onclick="App.updateInvoicePreview()" style="margin-top:8px">Generate Preview</button>
+        </div>
+
+        <div class="card invoice-preview" id="invoice-doc">
+          <div class="invoice-header-block">
+            <div class="firm-details">
+              <div class="firm-name">MOTSOENENG BILL ATTORNEYS</div>
+              <div class="firm-sub">Houghton Estate, Johannesburg</div>
+              <div class="firm-sub">Tel: +27 11 463 9401 &nbsp;·&nbsp; www.mb.co.za</div>
+            </div>
+            <div class="inv-meta">
+              <div class="inv-label">PRO-FORMA INVOICE</div>
+              <div class="inv-number" id="inv-number">#PF-2026-0422</div>
+              <div class="inv-date">Date: 22 April 2026</div>
+            </div>
+          </div>
+
+          <div class="inv-to">
+            <div class="inv-to-label">BILL TO</div>
+            <div id="inv-client-name">Client Name</div>
+            <div id="inv-matter-ref">Matter: —</div>
+          </div>
+
+          <table class="inv-table" id="inv-line-items">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Units</th>
+                <th>Hours</th>
+                <th>Amount (R)</th>
+              </tr>
+            </thead>
+            <tbody id="inv-lines"></tbody>
+          </table>
+
+          <div class="inv-totals" id="inv-totals">
+            <div class="inv-row"><span>Subtotal</span><span id="inv-subtotal">R 0.00</span></div>
+            <div class="inv-row"><span>VAT (15%)</span><span id="inv-vat-amount">R 0.00</span></div>
+            <div class="inv-row total-row"><span>TOTAL DUE</span><span id="inv-total">R 0.00</span></div>
+          </div>
+
+          <div class="inv-footer-note">
+            Generated by TimeLex Automated Time Capture System &nbsp;·&nbsp; Entries verified and approved by fee earner
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 
+  SYSTEM COMPONENTS
+  - Notification toast system for user feedback
+  - JavaScript application initialization
+  -->
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+  
+  <!-- 
+  ASSESSMENT-SPECIFIC PROTECTION MECHANISMS
+  1. Watermark visible in print and screenshots
+  2. Copyright notices in HTML head and comments
+  3. Clear statement of ownership in all documentation
+  4. Intentional limitations for assessment purposes only
+  
+  DEVELOPER: Kone Tshivhinda
+  DATE: April 23, 2026
+  COPYRIGHT: © 2026 Kone Tshivhinda - All Rights Reserved
+  LICENSE: Assessment-Specific License (not for production use)
+  -->
+</body>
+</html>
