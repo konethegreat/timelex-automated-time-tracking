@@ -21,9 +21,15 @@
  */
 
 import { toBillingUnits, formatDuration, getCurrentTime } from './utils/date-helpers.js';
+import { 
+  showToast, 
+  showSuccess, 
+  showError, 
+  showWarning, 
+  showInfo,
+  initLegacyToast
+} from './utils/toast-notification.js';
 import * as MatterLookup from './utils/matter-lookup.js';
-
-
 
 /**
  * TimeLex — Automated Legal Time Capture
@@ -51,16 +57,21 @@ const App = (() => {
     entryCounter: 1,
     rate: 3500,
     assessmentWatermark: true, // Critical protection - prevents production use
+    matterSuggestions: []    // For autocomplete functionality
   };
 
   // ─── MATTER LOOKUP ─────────────────────────────────────────────────────────
+  // Correct structure: object with matter numbers as keys
   const matters = {
-    MatterLookup.createMatter('2024/0512-LIT', 'Nkosi v Absa Bank', 'Stephanie Chetty', { department: 'Litigation' }),
-  MatterLookup.createMatter('2024/0888-LIT', 'Dlamini Urgent Application', 'Stephanie Chetty', { department: 'Litigation' }),
-    MatterLookup.createMatter('2025/0103-COM', 'Motlhabi Holdings — SLA Review', 'Aristidis Perivolaris', { department: 'Corporate' }),
-    MatterLookup.createMatter('2025/0217-LAB', 'Perivolaris Labour Dispute', 'Johan Biggs', { department: 'Labour' }),
-    MatterLookup.createMatter('2025/0391-CON', 'Botha Property Transfer', 'Anchané Botha', { department: 'Contractual' }),
+    '2024/0512-LIT': MatterLookup.createMatter('2024/0512-LIT', 'Nkosi v Absa Bank', 'Stephanie Chetty', { department: 'Litigation' }),
+    '2024/0888-LIT': MatterLookup.createMatter('2024/0888-LIT', 'Dlamini Urgent Application', 'Stephanie Chetty', { department: 'Litigation' }),
+    '2025/0103-COM': MatterLookup.createMatter('2025/0103-COM', 'Motlhabi Holdings — SLA Review', 'Aristidis Perivolaris', { department: 'Corporate' }),
+    '2025/0217-LAB': MatterLookup.createMatter('2025/0217-LAB', 'Perivolaris Labour Dispute', 'Johan Biggs', { department: 'Labour' }),
+    '2025/0391-CON': MatterLookup.createMatter('2025/0391-CON', 'Botha Property Transfer', 'Anchané Botha', { department: 'Contractual' })
   };
+
+  // Convert matters object to array for search functionality
+  const mattersArray = Object.values(matters);
 
   // ─── SIMULATED ACTIVITY POOL ───────────────────────────────────────────────
   const activityPool = [
@@ -202,6 +213,51 @@ const App = (() => {
     }
   }
 
+  // ─── MATTER AUTOCOMPLETE FUNCTIONALITY ─────────────────────────────────────
+  function initMatterAutocomplete() {
+    const matterInput = document.getElementById('manual-matter');
+    const datalist = document.getElementById('matters-list');
+    
+    if (!matterInput || !datalist) return;
+    
+    // Initialize with all matters
+    updateMatterDatalist('');
+    
+    // Set up input event listener for autocomplete
+    matterInput.addEventListener('input', (e) => {
+      const query = e.target.value;
+      updateMatterDatalist(query);
+    });
+    
+    // For draft entries matter input
+    document.addEventListener('input', (e) => {
+      if (e.target && e.target.classList.contains('draft-matter-input')) {
+        const query = e.target.value;
+        const suggestions = MatterLookup.getMatterSuggestions(mattersArray, query);
+        state.matterSuggestions = suggestions;
+      }
+    });
+  }
+  
+  function updateMatterDatalist(query) {
+    const datalist = document.getElementById('matters-list');
+    if (!datalist) return;
+    
+    // Clear existing options
+    datalist.innerHTML = '';
+    
+    // Get matching matters
+    const suggestions = MatterLookup.getMatterSuggestions(mattersArray, query);
+    
+    // Add new options
+    suggestions.forEach(suggestion => {
+      const option = document.createElement('option');
+      option.value = suggestion.value;
+      option.textContent = suggestion.label;
+      datalist.appendChild(option);
+    });
+  }
+
   // ─── HELPERS ───────────────────────────────────────────────────────────────
   function now() {
     return new Date().toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' });
@@ -337,6 +393,12 @@ const App = (() => {
     const matterInput = document.getElementById('dm-' + id);
     if (matterInput) draft.matter = matterInput.value.trim() || draft.matter;
 
+    // Validate matter number
+    if (!MatterLookup.isValidMatterNumber(draft.matter)) {
+      toast('Please enter a valid matter number (e.g., 2024/0512-LIT)', 'error');
+      return;
+    }
+
     const entry = { ...draft, status: 'approved', source: 'auto' };
     state.entries.unshift(entry);
     state.drafts.splice(idx, 1);
@@ -358,15 +420,29 @@ const App = (() => {
     }
     
     const count = state.drafts.length;
-    state.drafts.forEach(draft => {
+    let validCount = 0;
+    
+    for (const draft of [...state.drafts]) {
+      // Validate matter number
+      if (!MatterLookup.isValidMatterNumber(draft.matter)) {
+        continue; // Skip invalid matters
+      }
+      
       const entry = { ...draft, status: 'approved', source: 'auto' };
       state.entries.unshift(entry);
-    });
+      validCount++;
+    }
+    
     state.drafts = [];
     renderDrafts();
     renderEntries();
     updateStats();
-    toast(`${count} entries approved`, 'success');
+    
+    if (validCount > 0) {
+      toast(`${validCount} valid entries approved`, 'success');
+    } else {
+      toast('No valid entries to approve - please check matter numbers', 'error');
+    }
   }
 
   function discardDraft(id) {
@@ -445,9 +521,15 @@ const App = (() => {
     const narration= document.getElementById('manual-narration').value.trim();
     const billable = document.getElementById('manual-billable').checked;
 
+    // Validate matter number
     if (!matter) { 
       toast('Please enter a matter number', 'error'); 
       return; 
+    }
+    
+    if (!MatterLookup.isValidMatterNumber(matter)) {
+      toast('Please enter a valid matter number (e.g., 2024/0512-LIT)', 'error');
+      return;
     }
     
     if (!narration) { 
@@ -637,48 +719,48 @@ const App = (() => {
 
   // ─── NAVIGATION ────────────────────────────────────────────────────────────
   function initNav() {
-  // Use event delegation for better reliability
-  document.querySelector('.nav').addEventListener('click', function(e) {
-    const target = e.target.closest('.nav-item');
-    if (!target || !target.dataset.view) return;
-    
-    e.preventDefault();
-    
-    // Update active nav item
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    target.classList.add('active');
-    
-    // Show the correct view
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    const viewId = 'view-' + target.dataset.view;
-    const viewElement = document.getElementById(viewId);
-    
-    if (viewElement) {
-      viewElement.classList.add('active');
+    // Use event delegation for better reliability
+    document.querySelector('.nav').addEventListener('click', function(e) {
+      const target = e.target.closest('.nav-item');
+      if (!target || !target.dataset.view) return;
       
-      // Special rendering for certain views
-      if (target.dataset.view === 'entries') {
-        setTimeout(renderEntries, 0);
-      } else if (target.dataset.view === 'invoice') {
-        setTimeout(updateInvoicePreview, 0);
-      } else if (target.dataset.view === 'capture') {
-        setTimeout(renderCaptureFeed, 0);
+      e.preventDefault();
+      
+      // Update active nav item
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      target.classList.add('active');
+      
+      // Show the correct view
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      const viewId = 'view-' + target.dataset.view;
+      const viewElement = document.getElementById(viewId);
+      
+      if (viewElement) {
+        viewElement.classList.add('active');
+        
+        // Special rendering for certain views
+        if (target.dataset.view === 'entries') {
+          setTimeout(renderEntries, 0);
+        } else if (target.dataset.view === 'invoice') {
+          setTimeout(updateInvoicePreview, 0);
+        } else if (target.dataset.view === 'capture') {
+          setTimeout(renderCaptureFeed, 0);
+        }
       }
-    }
-  });
-
-  // Filter change
-  const filter = document.getElementById('filter-matter');
-  if (filter) filter.addEventListener('change', renderEntries);
-
-  // Billable toggle label
-  const billable = document.getElementById('manual-billable');
-  if (billable) {
-    billable.addEventListener('change', () => {
-      document.getElementById('billable-label').textContent = billable.checked ? 'Billable' : 'Unbillable';
     });
+
+    // Filter change
+    const filter = document.getElementById('filter-matter');
+    if (filter) filter.addEventListener('change', renderEntries);
+
+    // Billable toggle label
+    const billable = document.getElementById('manual-billable');
+    if (billable) {
+      billable.addEventListener('change', () => {
+        document.getElementById('billable-label').textContent = billable.checked ? 'Billable' : 'Unbillable';
+      });
+    }
   }
-}
 
   // ─── SEED DATA ─────────────────────────────────────────────────────────────
   function seedEntries() {
@@ -695,12 +777,15 @@ const App = (() => {
 
   // ─── INIT ──────────────────────────────────────────────────────────────────
   function init() {
+    // Initialize legacy toast system for compatibility with inline event handlers
+    initLegacyToast();
     // Add copyright protection
     addWatermark();
     checkAssessmentIntegrity();
     
     seedEntries();
     initNav();
+    initMatterAutocomplete(); // Initialize matter autocomplete
     updateStats();
     startCapture();
 
@@ -712,8 +797,6 @@ const App = (() => {
   }
 
   document.addEventListener('DOMContentLoaded', init);
-
-  window.App = App;
 
   // Public API
   return {
@@ -727,5 +810,7 @@ const App = (() => {
     printInvoice,
     pushToGP,
   };
-window.App = App;
 })();
+
+// Make App available globally for inline event handlers
+window.App = App;
