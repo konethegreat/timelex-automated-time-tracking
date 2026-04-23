@@ -7,3 +7,91 @@
  * @license [MIT or Assessment-Specific]
  * @see LICENSE file in repository root
  */
+ /* 
+TimeLex — Legal Time Capture
+Copyright (c) 2026 Kone Tshivhinda
+
+ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE
+Developed exclusively for MB Motsoeneng Bill Attorneys Software Engineer Assessment 2026
+
+ALL RIGHTS RESERVED
+This work is protected by copyright law. Submission of this assessment does not constitute 
+transfer of ownership. All intellectual property rights remain with the creator.
+
+This code may not be used in production without express written permission.
+For commercial licensing inquiries, contact: erictshivhinda@gmail.com
+
+IMPORTANT: This assessment submission is provided under Assessment-Specific License terms
+as documented in the complete project repository. Intentional limitations exist for 
+assessment purposes only (not for production implementation).
+*/
+
+/* ====== INVOICE ====== */
+.invoice-layout { align-items: flex-start; }
+.invoice-settings { position: sticky; top: 0; }
+.invoice-preview {
+  background: #fff;
+  color: #1a1a2e;
+  font-family: var(--font-sans);
+}
+.invoice-header-block {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #0d0f14;
+}
+.firm-name {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  color: #0d0f14;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+.firm-sub { font-size: 11px; color: #666; }
+.inv-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: #b8860b; margin-bottom: 4px;
+}
+.inv-number { font-family: var(--font-mono); font-size: 18px; color: #0d0f14; }
+.inv-date { font-size: 12px; color: #555; margin-top: 4px; }
+.inv-to { margin-bottom: 20px; }
+.inv-to-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 4px; }
+#inv-client-name { font-weight: 600; font-size: 14px; }
+#inv-matter-ref { font-size: 12px; color: #555; }
+
+.inv-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+.inv-table th {
+  background: #0d0f14; color: #c9a84c;
+  padding: 8px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px;
+  text-align: left;
+}
+.inv-table td { padding: 8px 10px; font-size: 12px; border-bottom: 1px solid #eee; }
+.inv-table tr:last-child td { border-bottom: none; }
+.inv-table td:last-child { text-align: right; font-family: var(--font-mono); }
+.inv-table th:last-child { text-align: right; }
+
+.inv-totals {
+  border-top: 1px solid #ddd;
+  padding-top: 12px;
+  margin-left: auto;
+  width: 260px;
+}
+.inv-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; padding: 4px 0;
+  color: #333;
+}
+.inv-row span:last-child { font-family: var(--font-mono); }
+.total-row {
+  border-top: 2px solid #0d0f14;
+  margin-top: 6px; padding-top: 8px;
+  font-weight: 700; font-size: 14px; color: #0d0f14;
+}
+.inv-footer-note {
+  margin-top: 28px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  font-size: 10px; color: #999; text-align: center;
+}
+.inv-meta { text-align: right; }

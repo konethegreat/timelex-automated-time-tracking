@@ -7,3 +7,200 @@
  * @license [MIT or Assessment-Specific]
  * @see LICENSE file in repository root
  */
+ /* 
+TimeLex — Legal Time Capture
+Copyright (c) 2026 Kone Tshivhinda
+
+ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE
+Developed exclusively for MB Motsoeneng Bill Attorneys Software Engineer Assessment 2026
+
+ALL RIGHTS RESERVED
+This work is protected by copyright law. Submission of this assessment does not constitute 
+transfer of ownership. All intellectual property rights remain with the creator.
+
+This code may not be used in production without express written permission.
+For commercial licensing inquiries, contact: kone.tshivhinda@example.com
+
+IMPORTANT: This assessment submission is provided under Assessment-Specific License terms
+as documented in the complete project repository. Intentional limitations exist for 
+assessment purposes only (not for production implementation).
+*/
+
+/* ==============================
+   TimeLex — Legal Time Capture
+   Design: Dark Legal, Gold Accent
+   ============================== */
+
+:root {
+  --bg:         #0d0f14;
+  --bg-card:    #13161d;
+  --bg-card2:   #181c25;
+  --border:     #222836;
+  --border2:    #2d3448;
+  --gold:       #c9a84c;
+  --gold-light: #e8c96a;
+  --gold-dim:   rgba(201, 168, 76, 0.15);
+  --text:       #e8eaf0;
+  --text-muted: #7a8299;
+  --text-dim:   #4a5168;
+  --green:      #4caf82;
+  --green-dim:  rgba(76, 175, 130, 0.12);
+  --red:        #e05c5c;
+  --red-dim:    rgba(224, 92, 92, 0.12);
+  --blue:       #5b8ef0;
+  --blue-dim:   rgba(91, 142, 240, 0.12);
+  --orange:     #e08a3c;
+  --sidebar-w:  220px;
+  --radius:     10px;
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans:  'DM Sans', sans-serif;
+  --font-mono:  'DM Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+/* ====== LAYOUT ====== */
+body { display: flex; }
+
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 36px;
+  min-height: 100vh;
+}
+
+/* ====== SIDEBAR ====== */
+.logo {
+  padding: 24px 20px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-serif);
+  font-size: 20px;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+.logo-icon { font-size: 22px; }
+
+.nav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.nav-item:hover { background: var(--border); color: var(--text); }
+.nav-item.active {
+  background: var(--gold-dim);
+  color: var(--gold);
+  border: 1px solid rgba(201, 168, 76, 0.25);
+}
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+.sidebar-user {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+.user-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.user-role { font-size: 11px; color: var(--text-muted); }
+
+/* ====== VIEWS ====== */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ====== PAGE HEADER ====== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+.page-header h1 {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+.subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.header-actions { display: flex; gap: 10px; align-items: center; }
+
+/* ====== LIVE DOT ====== */
+.live-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 0 rgba(76, 175, 130, 0.4);
+  animation: pulse-dot 1.8s infinite;
+}
+.active-text { color: var(--green); font-weight: 600; }
+
+@keyframes pulse-dot {
+  0%   { box-shadow: 0 0 0 0 rgba(76, 175, 130, 0.4); }
+  60%  { box-shadow: 0 0 0 6px rgba(76, 175, 130, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(76, 175, 130, 0); }
+}
+
+/* ====== SCROLLBAR ====== */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }

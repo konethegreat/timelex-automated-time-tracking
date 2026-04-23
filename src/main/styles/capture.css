@@ -7,3 +7,91 @@
  * @license [MIT or Assessment-Specific]
  * @see LICENSE file in repository root
  */
+ /* 
+TimeLex — Legal Time Capture
+Copyright (c) 2026 Kone Tshivhinda
+
+ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE
+Developed exclusively for MB Motsoeneng Bill Attorneys Software Engineer Assessment 2026
+
+ALL RIGHTS RESERVED
+This work is protected by copyright law. Submission of this assessment does not constitute 
+transfer of ownership. All intellectual property rights remain with the creator.
+
+This code may not be used in production without express written permission.
+For commercial licensing inquiries, contact: erictshivhinda@gmail.com
+
+IMPORTANT: This assessment submission is provided under Assessment-Specific License terms
+as documented in the complete project repository. Intentional limitations exist for 
+assessment purposes only (not for production implementation).
+*/
+
+/* ====== INTEGRATIONS ====== */
+.integrations-row {
+  display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.integration-chip {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  font-size: 12px; font-weight: 500;
+  color: var(--text-muted);
+}
+.integration-chip.connected {
+  border-color: rgba(76, 175, 130, 0.3);
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+/* ====== MANUAL FORM ====== */
+.manual-form { display: flex; flex-direction: column; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: var(--bg-card2);
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 8px 12px;
+  font-family: var(--font-sans);
+  transition: border-color 0.15s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { outline: none; border-color: var(--gold); }
+.form-group textarea { resize: vertical; }
+.form-group select option { background: var(--bg-card2); }
+
+/* ====== TOGGLE ====== */
+.toggle-row { display: flex; align-items: center; gap: 10px; }
+.toggle { position: relative; display: inline-block; width: 36px; height: 20px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--border2); border-radius: 20px; transition: 0.2s;
+}
+.slider::before {
+  content: ''; position: absolute;
+  height: 14px; width: 14px; left: 3px; bottom: 3px;
+  background: white; border-radius: 50%; transition: 0.2s;
+}
+.toggle input:checked + .slider { background: var(--green); }
+.toggle input:checked + .slider::before { transform: translateX(16px); }
+
+/* ====== CAPTURE VIEW ====== */
+#capture-feed { max-height: 500px; overflow-y: auto; }
+
+/* ====== CAPTURE STATUS ====== */
+.capture-status {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--green-dim);
+  border: 1px solid rgba(76, 175, 130, 0.2);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px; font-weight: 600; color: var(--green);
+}
+ 

@@ -7,3 +7,187 @@
  * @license [MIT or Assessment-Specific]
  * @see LICENSE file in repository root
  */
+ /* 
+TimeLex — Legal Time Capture
+Copyright (c) 2026 Kone Tshivhinda
+
+ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE
+Developed exclusively for MB Motsoeneng Bill Attorneys Software Engineer Assessment 2026
+
+ALL RIGHTS RESERVED
+This work is protected by copyright law. Submission of this assessment does not constitute 
+transfer of ownership. All intellectual property rights remain with the creator.
+
+This code may not be used in production without express written permission.
+For commercial licensing inquiries, contact: erictshivhinda@gmail.com
+
+IMPORTANT: This assessment submission is provided under Assessment-Specific License terms
+as documented in the complete project repository. Intentional limitations exist for 
+assessment purposes only (not for production implementation).
+*/
+
+/* ====== STATS GRID ====== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.stat-value { font-family: var(--font-mono); font-size: 26px; font-weight: 500; color: var(--text); line-height: 1; }
+.stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+.pending-val { color: var(--gold); }
+
+/* ====== CARDS ====== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 18px;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.card-header small { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-dim); }
+
+/* ====== PROGRESS BAR ====== */
+.target-card { margin-bottom: 20px; }
+.progress-bar {
+  height: 6px;
+  background: var(--border2);
+  border-radius: 3px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.target-pct { font-family: var(--font-mono); font-size: 18px; color: var(--gold); font-weight: 500; }
+.target-detail { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+.target-detail strong { color: var(--text); }
+
+/* ====== TWO COL ====== */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* ====== FEED ====== */
+.feed-list { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+.feed-empty { color: var(--text-dim); font-size: 12px; text-align: center; padding: 24px 0; }
+
+.feed-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  animation: slide-in 0.3s ease;
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.feed-icon {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.feed-icon.email   { background: var(--blue-dim); }
+.feed-icon.meeting { background: var(--green-dim); }
+.feed-icon.doc     { background: rgba(91, 142, 240, 0.08); }
+.feed-icon.call    { background: rgba(224, 138, 60, 0.12); }
+.feed-icon.research{ background: rgba(201, 168, 76, 0.1); }
+
+.feed-body { flex: 1; min-width: 0; }
+.feed-title { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.feed-meta  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.feed-time  { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+
+/* ====== DRAFT ENTRIES ====== */
+.draft-list { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+.draft-item {
+  padding: 10px 12px;
+  background: var(--bg-card2);
+  border: 1px solid var(--gold-dim);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  animation: slide-in 0.3s ease;
+}
+.draft-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.draft-type { font-size: 11px; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; }
+.draft-units { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+.draft-narration { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; line-height: 1.4; }
+.draft-matter-row { display: flex; gap: 6px; align-items: center; }
+.draft-matter-input {
+  flex: 1;
+  background: var(--border);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 11px;
+  padding: 4px 8px;
+  font-family: var(--font-mono);
+}
+.draft-matter-input:focus { outline: none; border-color: var(--gold); }
+.btn-approve {
+  background: var(--green-dim);
+  border: 1px solid rgba(76, 175, 130, 0.3);
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-approve:hover { background: rgba(76, 175, 130, 0.2); }
+.btn-discard {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-discard:hover { border-color: var(--red); color: var(--red); }
+
+/* ====== BADGE ====== */
+.badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  background: var(--green-dim);
+  color: var(--green);
+  border: 1px solid rgba(76, 175, 130, 0.2);
+}
+.badge.pulse { animation: badge-pulse 2s infinite; }
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}

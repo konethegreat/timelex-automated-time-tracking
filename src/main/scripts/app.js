@@ -10,7 +10,7 @@
  * transfer of ownership. All intellectual property rights remain with the creator.
  * 
  * This code may not be used in production without express written permission.
- * For commercial licensing inquiries, contact: kone.tshivhinda@example.com
+ * For commercial licensing inquiries, contact: erictshivhinda@gmail.com
  * 
  * IMPORTANT: This assessment submission is provided under Assessment-Specific License terms
  * as documented in the complete project repository. Intentional limitations exist for 
