@@ -20,7 +20,13 @@
  * This watermark appears when printing or capturing screenshots of the application
  */
 
-import { toBillingUnits, formatDuration, getCurrentTime } from './utils/date-helpers.js';
+import { 
+  toBillingUnits, 
+  formatDuration, 
+  getCurrentTime 
+} from './utils/date-helpers.js';
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖</text></svg>"></link>
 
 /**
  * TimeLex — Automated Legal Time Capture
@@ -634,35 +640,48 @@ const App = (() => {
 
   // ─── NAVIGATION ────────────────────────────────────────────────────────────
   function initNav() {
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', e => {
-        e.preventDefault();
-        const view = item.dataset.view;
-        
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        item.classList.add('active');
-        
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById('view-' + view).classList.add('active');
-
-        if (view === 'entries') renderEntries();
-        if (view === 'invoice') updateInvoicePreview();
-        if (view === 'capture') renderCaptureFeed();
-      });
-    });
-
-    // Filter change
-    const filter = document.getElementById('filter-matter');
-    if (filter) filter.addEventListener('change', renderEntries);
-
-    // Billable toggle label
-    const billable = document.getElementById('manual-billable');
-    if (billable) {
-      billable.addEventListener('change', () => {
-        document.getElementById('billable-label').textContent = billable.checked ? 'Billable' : 'Unbillable';
-      });
+  // Use event delegation for better reliability
+  document.querySelector('.nav').addEventListener('click', function(e) {
+    const target = e.target.closest('.nav-item');
+    if (!target || !target.dataset.view) return;
+    
+    e.preventDefault();
+    
+    // Update active nav item
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    target.classList.add('active');
+    
+    // Show the correct view
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const viewId = 'view-' + target.dataset.view;
+    const viewElement = document.getElementById(viewId);
+    
+    if (viewElement) {
+      viewElement.classList.add('active');
+      
+      // Special rendering for certain views
+      if (target.dataset.view === 'entries') {
+        setTimeout(renderEntries, 0);
+      } else if (target.dataset.view === 'invoice') {
+        setTimeout(updateInvoicePreview, 0);
+      } else if (target.dataset.view === 'capture') {
+        setTimeout(renderCaptureFeed, 0);
+      }
     }
+  });
+
+  // Filter change
+  const filter = document.getElementById('filter-matter');
+  if (filter) filter.addEventListener('change', renderEntries);
+
+  // Billable toggle label
+  const billable = document.getElementById('manual-billable');
+  if (billable) {
+    billable.addEventListener('change', () => {
+      document.getElementById('billable-label').textContent = billable.checked ? 'Billable' : 'Unbillable';
+    });
   }
+}
 
   // ─── SEED DATA ─────────────────────────────────────────────────────────────
   function seedEntries() {
