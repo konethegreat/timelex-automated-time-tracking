@@ -30,6 +30,7 @@ import {
   initLegacyToast
 } from './utils/toast-notification.js';
 import { CaptureEngine, createSimulatedActivity } from './capture-engine.js';
+import { GhostPracticeIntegration, createGPTimeEntries, initLegacyGPIntegration } from './gp-integration.js';
 import * as MatterLookup from './utils/matter-lookup.js';
 
 /**
@@ -56,6 +57,7 @@ const App = (() => {
     target: 150,        // monthly hour target
     captureInterval: null,
     captureEngine: null,
+    gpIntegration: null,
     entryCounter: 1,
     rate: 3500,
     assessmentWatermark: true, // Critical protection - prevents production use
@@ -866,6 +868,22 @@ function getActivityLabel(type) {
     initMatterAutocomplete(); // Initialize matter autocomplete
     updateStats();
     startCapture();
+    
+    // Initialize GP integration
+    state.gpIntegration = new GhostPracticeIntegration({
+      toast: (msg, type) => showToast(msg, type)
+    });
+    
+    // Initialize legacy pushToGP function for backward compatibility
+    initLegacyGPIntegration({
+      toast: (msg, type) => showToast(msg, type),
+      pushTimeEntries: async (entries) => {
+        if (!state.gpIntegration.isConnected()) {
+          await state.gpIntegration.authenticate();
+        }
+        return state.gpIntegration.pushTimeEntries(entries);
+      }
+    });
 
     // Initial render
     setTimeout(() => {
@@ -887,6 +905,18 @@ function getActivityLabel(type) {
     updateInvoicePreview,
     printInvoice,
     pushToGP,
+    getApprovedBillableEntries() {
+      return state.entries.filter(e => 
+        e.status === 'approved' && e.billable
+      );
+    },
+    clearApprovedEntries() {
+      state.entries = state.entries.filter(e => 
+        !(e.status === 'approved' && e.billable)
+      );
+      renderEntries();
+      updateStats();
+    }
   };
 })();
 
