@@ -399,12 +399,32 @@ function getActivityLabel(type) {
     document.getElementById('target-remaining').textContent = remaining.toFixed(1) + ' h remaining';
   }
 
-  function toast(msg, type = 'default') {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = `toast show ${type}`;
-    setTimeout(() => { el.className = 'toast'; }, 3000);
-  }
+  
+function toast(message, type = 'info') {
+    let toastContainer = document.getElementById('toast-container');
+    
+    // 1. If the container doesn't exist, create it dynamically
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+
+    // 2. Create the toast element
+    const toastEl = document.createElement('div');
+    toastEl.className = `toast toast-${type}`;
+    
+    // 3. Use a safe assignment
+    toastEl.textContent = message; 
+
+    toastContainer.appendChild(toastEl);
+
+    // 4. Auto-remove after 3 seconds
+    setTimeout(() => {
+        toastEl.style.opacity = '0';
+        setTimeout(() => toastEl.remove(), 500);
+    }, 3000);
+}
 
   // ─── FEED ──────────────────────────────────────────────────────────────────
   function addFeedItem(activity, title, units, matter) {
@@ -1000,8 +1020,16 @@ function getActivityLabel(type) {
       renderEntries();
       updateStats();
     }
+    
   };
 })();
 
 // Make App available globally for inline event handlers
 window.App = App;
+
+// Inside your App.init() or at the bottom of app.js
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});

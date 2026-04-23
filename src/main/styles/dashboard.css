@@ -1,30 +1,44 @@
 /**
- * TimeLex — Automated Legal Time Capture
- * Copyright (c) [2026] [Kone Tshivhinda]
+ * TimeLex — Legal Time Capture
+ * Copyright (c) 2026 Kone Tshivhinda
  * 
- * For assessment purposes only - not for production use
+ * ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE
+ * Developed exclusively for MB Motsoeneng Bill Attorneys Software Engineer Assessment 2026
  * 
- * @license [MIT or Assessment-Specific]
- * @see LICENSE file in repository root
+ * ALL RIGHTS RESERVED
+ * This work is protected by copyright law. Submission of this assessment does not constitute 
+ * transfer of ownership. All intellectual property rights remain with the creator.
+ * 
+ * This code may not be used in production without express written permission.
+ * For commercial licensing inquiries, contact: erictshivhinda@gmail.com
+ * 
+ * IMPORTANT: This assessment submission is provided under Assessment-Specific License terms
+ * as documented in the complete project repository. Intentional limitations exist for 
+ * assessment purposes only (not for production implementation).
  */
- /* 
-TimeLex — Legal Time Capture
-Copyright (c) 2026 Kone Tshivhinda
 
-ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE
-Developed exclusively for MB Motsoeneng Bill Attorneys Software Engineer Assessment 2026
+/* ====== METRIC CARDS - Professional Adaptation ====== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
 
-ALL RIGHTS RESERVED
-This work is protected by copyright law. Submission of this assessment does not constitute 
-transfer of ownership. All intellectual property rights remain with the creator.
+.stat-card {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border: 1px solid var(--border2);
+    border-radius: 4px; /* Sharper corners look more "professional" than round ones */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
 
-This code may not be used in production without express written permission.
-For commercial licensing inquiries, contact: erictshivhinda@gmail.com
-
-IMPORTANT: This assessment submission is provided under Assessment-Specific License terms
-as documented in the complete project repository. Intentional limitations exist for 
-assessment purposes only (not for production implementation).
-*/
+.stat-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text);
+    display: block;
+}
 
 /* ====== STATS GRID ====== */
 .stats-grid {
@@ -190,4 +204,14 @@ assessment purposes only (not for production implementation).
 @keyframes badge-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
+}
+
+/* Professional badge adaptations */
+.badge-draft {
+  background: var(--gold-dim);
+  color: var(--gold);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }

@@ -30,16 +30,26 @@ assessment purposes only (not for production implementation).
 .invoice-layout { align-items: flex-start; }
 .invoice-settings { position: sticky; top: 0; }
 .invoice-preview {
-  background: #fff;
-  color: #1a1a2e;
-  font-family: var(--font-sans);
+    background: white;
+    width: 210mm; /* A4 Ratio */
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 20mm;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    color: #000;
 }
-.invoice-header-block {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #0d0f14;
+.invoice-header {
+    border-bottom: 2px solid var(--legal-navy);
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+}
+.invoice-title {
+    font-family: serif; /* Serif here adds that "law firm" gravitas */
+    font-size: 2.5rem;
+    color: var(--legal-navy);
+    text-transform: uppercase;
 }
 .firm-name {
   font-family: var(--font-serif);
