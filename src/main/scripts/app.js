@@ -20,6 +20,8 @@
  * This watermark appears when printing or capturing screenshots of the application
  */
 
+import { toBillingUnits, formatDuration, getCurrentTime } from './utils/date-helpers.js';
+
 /**
  * TimeLex — Automated Legal Time Capture
  * Prototype for MB Motsoeneng Bill Attorneys
