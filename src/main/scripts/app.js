@@ -20,13 +20,9 @@
  * This watermark appears when printing or capturing screenshots of the application
  */
 
-import { 
-  toBillingUnits, 
-  formatDuration, 
-  getCurrentTime 
-} from './utils/date-helpers.js';
+import { toBillingUnits, formatDuration, getCurrentTime } from './utils/date-helpers.js';
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖</text></svg>"></link>
+
 
 /**
  * TimeLex — Automated Legal Time Capture
@@ -716,6 +712,8 @@ const App = (() => {
 
   document.addEventListener('DOMContentLoaded', init);
 
+  window.App = App;
+
   // Public API
   return {
     toggleCapture,
@@ -728,5 +726,5 @@ const App = (() => {
     printInvoice,
     pushToGP,
   };
-
+window.App = App;
 })();
