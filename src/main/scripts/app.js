@@ -656,15 +656,20 @@ function getActivityLabel(type) {
 
   // ─── INVOICE ───────────────────────────────────────────────────────────────
   function updateInvoicePreview() {
+    const invoiceView = document.getElementById('view-invoice');
+    if (!invoiceView || !invoiceView.classList.contains('active')) {
+      return;
+    }
+    
     if (!state.assessmentWatermark) {
       toast('This is an assessment prototype only - contact Kone Tshivhinda for licensing', 'error');
       return;
     }
     
-    const matterFilter = document.getElementById('inv-matter').value;
-    const rate  = parseFloat(document.getElementById('inv-rate').value) || 3500;
-    const vatPct= parseFloat(document.getElementById('inv-vat').value)  / 100 || 0.15;
-    const type  = document.getElementById('inv-type').value;
+    const matterFilter = document.getElementById('inv-matter')?.value || '';
+    const rate = parseFloat(document.getElementById('inv-rate')?.value) || 3500;
+    const vatPct = parseFloat(document.getElementById('inv-vat')?.value) / 100 || 0.15;
+    const type = document.getElementById('inv-type')?.value;
 
     state.rate = rate;
 
@@ -673,51 +678,59 @@ function getActivityLabel(type) {
       (matterFilter === 'all' || e.matter === matterFilter)
     );
 
-    // Client name
     let clientName = 'Multiple Clients (Consolidated)';
-    let matterRef  = 'All Active Matters';
+    let matterRef = 'All Active Matters';
     if (matterFilter !== 'all' && matters[matterFilter]) {
       clientName = matters[matterFilter].client;
-      matterRef  = 'Matter: ' + matterFilter;
+      matterRef = 'Matter: ' + matterFilter;
     }
 
-    document.getElementById('inv-client-name').textContent = clientName;
-    document.getElementById('inv-matter-ref').textContent  = matterRef;
-    document.getElementById('inv-label').textContent = type === 'Pro-Forma'
-      ? 'PRO-FORMA INVOICE' : 'TAX INVOICE';
-    document.getElementById('inv-number').textContent = type === 'Pro-Forma'
-      ? '#PF-2026-0422' : '#INV-2026-0422';
-
+    // SAFETY CHECKS FOR ALL ELEMENTS
+    const clientNameEl = document.getElementById('inv-client-name');
+    const matterRefEl = document.getElementById('inv-matter-ref');
+    const labelEl = document.getElementById('inv-label');
+    const numberEl = document.getElementById('inv-number');
     const tbody = document.getElementById('inv-lines');
-    if (approved.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="color:#999;text-align:center;padding:16px">No approved billable entries for this matter</td></tr>';
-      document.getElementById('inv-subtotal').textContent  = 'R 0.00';
-      document.getElementById('inv-vat-amount').textContent = 'R 0.00';
-      document.getElementById('inv-total').textContent     = 'R 0.00';
-      return;
+    const subtotalEl = document.getElementById('inv-subtotal');
+    const vatAmountEl = document.getElementById('inv-vat-amount');
+    const totalEl = document.getElementById('inv-total');
+
+    if (clientNameEl) clientNameEl.textContent = clientName;
+    if (matterRefEl) matterRefEl.textContent = matterRef;
+    if (labelEl) labelEl.textContent = type === 'Pro-Forma' ? 'PRO-FORMA INVOICE' : 'TAX INVOICE';
+    if (numberEl) numberEl.textContent = type === 'Pro-Forma' ? '#PF-2026-0422' : '#INV-2026-0422';
+
+    if (tbody) {
+      if (approved.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color:#999;text-align:center;padding:16px">No approved billable entries for this matter</td></tr>';
+        if (subtotalEl) subtotalEl.textContent = 'R 0.00';
+        if (vatAmountEl) vatAmountEl.textContent = 'R 0.00';
+        if (totalEl) totalEl.textContent = 'R 0.00';
+        return;
+      }
+
+      let subtotal = 0;
+      tbody.innerHTML = approved.map(e => {
+        const hrs = (e.units * 0.1);
+        const amount = hrs * rate;
+        subtotal += amount;
+        return `
+          <tr>
+            <td>${e.time}</td>
+            <td>${e.narration}</td>
+            <td style="text-align:center">${e.units}</td>
+            <td style="text-align:center">${hrs.toFixed(1)}</td>
+            <td>R ${amount.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const vat = subtotal * vatPct;
+      const total = subtotal + vat;
+      if (subtotalEl) subtotalEl.textContent = 'R ' + subtotal.toFixed(2);
+      if (vatAmountEl) vatAmountEl.textContent = 'R ' + vat.toFixed(2);
+      if (totalEl) totalEl.textContent = 'R ' + total.toFixed(2);
     }
-
-    let subtotal = 0;
-    tbody.innerHTML = approved.map(e => {
-      const hrs    = (e.units * 0.1);
-      const amount = hrs * rate;
-      subtotal += amount;
-      return `
-        <tr>
-          <td>${e.time}</td>
-          <td>${e.narration}</td>
-          <td style="text-align:center">${e.units}</td>
-          <td style="text-align:center">${hrs.toFixed(1)}</td>
-          <td>R ${amount.toFixed(2)}</td>
-        </tr>
-      `;
-    }).join('');
-
-    const vat   = subtotal * vatPct;
-    const total = subtotal + vat;
-    document.getElementById('inv-subtotal').textContent   = 'R ' + subtotal.toFixed(2);
-    document.getElementById('inv-vat-amount').textContent = 'R ' + vat.toFixed(2);
-    document.getElementById('inv-total').textContent      = 'R ' + total.toFixed(2);
   }
 
   function printInvoice() {
@@ -802,7 +815,6 @@ function getActivityLabel(type) {
 
   // ─── NAVIGATION ────────────────────────────────────────────────────────────
   function initNav() {
-    // Use event delegation for better reliability
     document.querySelector('.nav').addEventListener('click', function(e) {
       const target = e.target.closest('.nav-item');
       if (!target || !target.dataset.view) return;
@@ -825,7 +837,8 @@ function getActivityLabel(type) {
         if (target.dataset.view === 'entries') {
           setTimeout(renderEntries, 0);
         } else if (target.dataset.view === 'invoice') {
-          setTimeout(updateInvoicePreview, 0);
+          // Add a small delay to ensure the view is fully rendered
+          setTimeout(updateInvoicePreview, 50);
         } else if (target.dataset.view === 'capture') {
           setTimeout(renderCaptureFeed, 0);
         }
