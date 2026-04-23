@@ -29,6 +29,7 @@ import {
   showInfo,
   initLegacyToast
 } from './utils/toast-notification.js';
+import { CaptureEngine, createSimulatedActivity } from './capture-engine.js';
 import * as MatterLookup from './utils/matter-lookup.js';
 
 /**
@@ -54,6 +55,7 @@ const App = (() => {
     monthBase: 47.8,    // hours already on books (simulated month-to-date)
     target: 150,        // monthly hour target
     captureInterval: null,
+    captureEngine: null,
     entryCounter: 1,
     rate: 3500,
     assessmentWatermark: true, // Critical protection - prevents production use
@@ -69,6 +71,82 @@ const App = (() => {
     '2025/0217-LAB': MatterLookup.createMatter('2025/0217-LAB', 'Perivolaris Labour Dispute', 'Johan Biggs', { department: 'Labour' }),
     '2025/0391-CON': MatterLookup.createMatter('2025/0391-CON', 'Botha Property Transfer', 'Anchané Botha', { department: 'Contractual' })
   };
+  state.captureEngine = new CaptureEngine({
+  matters,
+  addActivity: (activity) => {
+    addFeedItem(
+      {
+        type: activity.type,
+        icon: getIconForActivityType(activity.type),
+        label: getActivityLabel(activity.type)
+      },
+      activity.title,
+      activity.units,
+      activity.matter
+    );
+  }
+}, {
+  enabled: true,
+  autoApprove: false
+});
+
+
+
+// Start the capture engine
+state.captureEngine.start();
+
+// Update your toggleCapture function to use the engine
+function toggleCapture() {
+  if (!state.assessmentWatermark) {
+    toast('This is an assessment prototype only - contact Kone Tshivhinda for licensing', 'error');
+    return;
+  }
+  
+  state.captureEngine.toggle();
+  
+  const btn = document.getElementById('capture-toggle-text');
+  const badge = document.getElementById('feed-badge');
+  const statusBadge = document.getElementById('capture-status-badge');
+  
+  if (state.captureEngine.getStatus() === CaptureStatus.ACTIVE) {
+    btn.textContent = 'Pause Capture';
+    badge.textContent = 'Detecting…';
+    badge.className = 'badge pulse';
+    if (statusBadge) statusBadge.innerHTML = '<span class="live-dot"></span> Monitoring active';
+    toast('Auto-capture resumed');
+  } else {
+    btn.textContent = 'Resume Capture';
+    badge.textContent = 'Paused';
+    badge.className = 'badge';
+    badge.style.background = 'var(--red-dim)';
+    badge.style.color = 'var(--red)';
+    if (statusBadge) statusBadge.innerHTML = '⏸ Capture paused';
+    toast('Auto-capture paused');
+  }
+}
+
+// Helper functions for activity types
+function getIconForActivityType(type) {
+  const icons = {
+    [ActivityType.EMAIL]: '✉',
+    [ActivityType.MEETING]: '📅',
+    [ActivityType.DOCUMENT]: '📄',
+    [ActivityType.CALL]: '📞',
+    [ActivityType.RESEARCH]: '🔍'
+  };
+  return icons[type] || '•';
+}
+
+function getActivityLabel(type) {
+  const labels = {
+    [ActivityType.EMAIL]: 'Email',
+    [ActivityType.MEETING]: 'Meeting',
+    [ActivityType.DOCUMENT]: 'Document',
+    [ActivityType.CALL]: 'Phone Call',
+    [ActivityType.RESEARCH]: 'Research'
+  };
+  return labels[type] || 'Activity';
+}
 
   // Convert matters object to array for search functionality
   const mattersArray = Object.values(matters);
