@@ -30,6 +30,7 @@ import {
   initLegacyToast
 } from './utils/toast-notification.js';
 import { CaptureEngine, createSimulatedActivity } from './capture-engine.js';
+import { InvoiceGenerator, InvoiceType } from './invoice-generator.js';
 import { GhostPracticeIntegration, createGPTimeEntries, initLegacyGPIntegration } from './gp-integration.js';
 import * as MatterLookup from './utils/matter-lookup.js';
 
@@ -58,6 +59,8 @@ const App = (() => {
     captureInterval: null,
     captureEngine: null,
     gpIntegration: null,
+    invoiceGenerator: null,
+    currentInvoice: null,
     entryCounter: 1,
     rate: 3500,
     assessmentWatermark: true, // Critical protection - prevents production use
@@ -883,6 +886,24 @@ function getActivityLabel(type) {
         }
         return state.gpIntegration.pushTimeEntries(entries);
       }
+    });
+    
+    // Initialize invoice generator
+    state.invoiceGenerator = new InvoiceGenerator({
+      toast: (msg, type) => showToast(msg, type)
+    }, {
+      firmName: 'MOTSOENENG BILL ATTORNEYS',
+      firmAddress: 'Houghton Estate, Johannesburg',
+      firmContact: 'Tel: +27 11 463 9401 · www.mb.co.za',
+      defaultRate: 3500,
+      defaultVatRate: 15,
+      currency: 'R'
+    });
+    
+    // Initialize legacy invoice functions for backward compatibility
+    state.invoiceGenerator.initLegacyFunctions({
+      toast: (msg, type) => showToast(msg, type),
+      gpIntegration: state.gpIntegration
     });
 
     // Initial render
