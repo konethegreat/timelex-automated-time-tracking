@@ -29,28 +29,12 @@
   <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js" 
         crossorigin="anonymous" 
         referrerpolicy="no-referrer"></script>
-  <i data-lucide="clock" class="icon-small"></i>
+  
   <!-- 
   ASSESSMENT WATERMARK: Visible in print and screenshots to prevent unauthorized production use
   This watermark appears when printing or capturing screenshots of the application
   -->
-  <style>
-    @media print, screen {
-      body::after {
-        content: "ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE | © 2026 Kone Tshivhinda";
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: rgba(0,0,0,0.05);
-        color: #666;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        z-index: 9999;
-        pointer-events: none;
-      }
-    }
-  </style>
+  
   
  
 <!-- Base styles -->
@@ -125,6 +109,7 @@
     -->
     <div id="view-dashboard" class="view active">
       <header class="page-header">
+        <i data-lucide="clock" class="icon-small"></i>
         <div>
           <h1>Good morning, Stephanie</h1>
           <p class="subtitle">Wednesday, 22 April 2026 &nbsp;·&nbsp; <span class="live-dot"></span> Auto-capture <span class="active-text">active</span></p>

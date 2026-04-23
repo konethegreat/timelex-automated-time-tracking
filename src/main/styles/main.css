@@ -100,11 +100,20 @@ body { display: flex; }
     border-right: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     padding: 2rem 1.5rem;
     position: sticky;
     top: 0;
     height: 100vh;
     flex-shrink: 0;
+}
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 2rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    /* This ensures sidebar text stays ABOVE where the watermark might sit */
+    padding-bottom: 40px; 
 }
 
 .main,
@@ -273,14 +282,28 @@ header.view-header h1,
 /* Watermark Requirements */
 #assessment-watermark {
     position: fixed;
-    bottom: 10px;
-    right: 15px;
-    font-size: 12px;
-    color: rgba(150, 150, 150, 0.6);
-    z-index: 9999;
-    pointer-events: none;
-    font-weight: bold;
+    /* Move to the right to avoid the left-hand sidebar */
+    bottom: 15px;
+    right: 20px; 
+    
+    /* Typography */
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: var(--text-muted);
     text-transform: uppercase;
+    
+    /* The "Anti-Clutter" Magic */
+    background: rgba(248, 250, 252, 0.8); /* Matches your --slate-bg */
+    backdrop-filter: blur(4px);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+    
+    /* Ensure it stays on top of EVERYTHING */
+    z-index: 99999;
+    pointer-events: none;
+    white-space: nowrap;
 }
 #toast-container {
     position: fixed;
