@@ -21,6 +21,7 @@
  */
 
 import { toBillingUnits, formatDuration, getCurrentTime } from './utils/date-helpers.js';
+import * as MatterLookup from './utils/matter-lookup.js';
 
 
 
@@ -54,11 +55,11 @@ const App = (() => {
 
   // ─── MATTER LOOKUP ─────────────────────────────────────────────────────────
   const matters = {
-    '2024/0512-LIT': { client: 'Nkosi v Absa Bank',              partner: 'Stephanie Chetty' },
-    '2024/0888-LIT': { client: 'Dlamini Urgent Application',      partner: 'Stephanie Chetty' },
-    '2025/0103-COM': { client: 'Motlhabi Holdings — SLA Review',  partner: 'Aristidis Perivolaris' },
-    '2025/0217-LAB': { client: 'Perivolaris Labour Dispute',      partner: 'Johan Biggs' },
-    '2025/0391-CON': { client: 'Botha Property Transfer',         partner: 'Anchané Botha' },
+    MatterLookup.createMatter('2024/0512-LIT', 'Nkosi v Absa Bank', 'Stephanie Chetty', { department: 'Litigation' }),
+  MatterLookup.createMatter('2024/0888-LIT', 'Dlamini Urgent Application', 'Stephanie Chetty', { department: 'Litigation' }),
+    MatterLookup.createMatter('2025/0103-COM', 'Motlhabi Holdings — SLA Review', 'Aristidis Perivolaris', { department: 'Corporate' }),
+    MatterLookup.createMatter('2025/0217-LAB', 'Perivolaris Labour Dispute', 'Johan Biggs', { department: 'Labour' }),
+    MatterLookup.createMatter('2025/0391-CON', 'Botha Property Transfer', 'Anchané Botha', { department: 'Contractual' }),
   };
 
   // ─── SIMULATED ACTIVITY POOL ───────────────────────────────────────────────
