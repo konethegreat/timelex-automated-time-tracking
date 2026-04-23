@@ -424,7 +424,79 @@ export class CaptureEngine {
     // Default to billable for client-facing activities
     return true;
   }
-  
+
+  /**
+   * Automatically captures an activity and places it in "Draft" state for attorney review
+   * Addressing the "draft for review" survey requirement
+   * @param {Object} activityData - The raw data intercepted from integrations
+   * @returns {Object|null} A drafted time entry, or null if capture limit exceeded
+   */
+  autoCaptureActivity(activityData) {
+    if (!activityData) {
+      throw new Error("Invalid activity data");
+    }
+
+    // Intentional Assessment Limitation: Max 5 captures per session
+    const captureCount = parseInt(sessionStorage.getItem('captureCount') || '0');
+    if (captureCount >= 5) {
+      console.warn("PROTOTYPE LIMITATION: Maximum automated captures reached.");
+      return null;
+    }
+    sessionStorage.setItem('captureCount', captureCount + 1);
+
+    // Process entry as a Draft (Addressing the "draft for review" survey requirement)
+    const draftEntry = {
+      id: `draft_${Date.now()}`,
+      type: activityData.type || 'email',
+      matterId: this.attemptMatterAutocomplete(activityData.context),
+      duration: this.calculateDuration(activityData.start, activityData.end),
+      status: 'PENDING_APPROVAL', // Attorney approves, not re-types
+      timestamp: new Date().toISOString()
+    };
+
+    return draftEntry;
+  }
+
+  /**
+   * Attempts matter assignment via autocomplete logic
+   * Quick matter assignment via autocomplete addressing survey requirement
+   * @param {string} contextText - Context text to match against matter patterns
+   * @returns {string} Matter number or 'UNASSIGNED'
+   */
+  attemptMatterAutocomplete(contextText) {
+    if (!contextText) return 'UNASSIGNED';
+
+    // Try to match against configured matter rules
+    for (const rule of this.config.matterRules) {
+      if (this._matchesPattern({ title: contextText }, rule.pattern)) {
+        return rule.matterNumber;
+      }
+    }
+
+    // Fallback: return first available matter or unassigned
+    const matterKeys = Object.keys(this.matters);
+    return matterKeys.length > 0 ? matterKeys[0] : 'UNASSIGNED';
+  }
+
+  /**
+   * Calculates duration in billing units
+   * Default to 15m (0.25h) minimum billing increment
+   * @param {Date|number} start - Start time
+   * @param {Date|number} end - End time
+   * @returns {number} Duration in hours (for 6-minute billing units)
+   */
+  calculateDuration(start, end) {
+    if (start && end) {
+      const startTime = typeof start === 'number' ? start : new Date(start).getTime();
+      const endTime = typeof end === 'number' ? end : new Date(end).getTime();
+      const durationMinutes = (endTime - startTime) / (1000 * 60);
+      // Convert to hours and round to nearest 0.1 (6-minute increment)
+      return Math.ceil(durationMinutes / 6) * 0.1;
+    }
+    // Default to 15m (0.25h) minimum billing increment
+    return 0.25;
+  }
+
   /**
    * Stops the capture engine
    */

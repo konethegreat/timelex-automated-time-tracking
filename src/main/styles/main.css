@@ -204,3 +204,37 @@ body { display: flex; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* * main.css
+ * Copyright (c) 2026 Kone Tshivhinda
+ * ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE
+ */
+
+/* Watermark Requirements */
+#assessment-watermark {
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+    font-size: 12px;
+    color: rgba(150, 150, 150, 0.6);
+    z-index: 9999;
+    pointer-events: none;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Print Specific Protections */
+@media print {
+    #assessment-watermark {
+        color: rgba(0, 0, 0, 0.5) !important;
+        position: fixed;
+        bottom: 10px;
+        right: 15px;
+        display: block !important;
+    }
+    
+    /* Hide navigation during print */
+    .app-sidebar, .top-nav {
+        display: none !important;
+    }
+}

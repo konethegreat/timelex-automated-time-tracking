@@ -48,6 +48,32 @@ import * as MatterLookup from './utils/matter-lookup.js';
  */
 
 const App = (() => {
+  // ─── ASSESSMENT PROTECTION ─────────────────────────────────────────────────
+  // Expiration check - blocks entire app if assessment period has passed
+  const EXPIRATION_DATE = new Date('2026-05-07T23:59:59');
+  
+  function checkAssessmentStatus() {
+    const now = new Date();
+    if (now > EXPIRATION_DATE) {
+      document.body.innerHTML = `
+        <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#f8d7da; color:#721c24; text-align:center; font-family:sans-serif;">
+          <div style="padding: 40px;">
+            <h1 style="margin-bottom: 20px;">Assessment Period Expired</h1>
+            <p style="margin: 10px 0; font-size: 16px;">This prototype was valid until May 7, 2026.</p>
+            <p style="margin: 10px 0; font-size: 16px;">Please contact Kone Tshivhinda for production licensing.</p>
+            <p style="margin-top: 30px; font-size: 12px; color: #999;"><small>Copyright (c) 2026</small></p>
+          </div>
+        </div>`;
+      return false;
+    }
+    return true;
+  }
+  
+  // Check assessment status immediately on load
+  if (!checkAssessmentStatus()) {
+    throw new Error('Assessment period has expired');
+  }
+
   // ─── STATE ─────────────────────────────────────────────────────────────────
   const state = {
     capturing: true,
@@ -733,6 +759,29 @@ function getActivityLabel(type) {
     }
   }
 
+  // SAFE INVOICE UPDATE WITH RETRY LOGIC
+  function safeUpdateInvoicePreview() {
+    // Prevent execution if not on invoice view
+    const invoiceView = document.getElementById('view-invoice');
+    if (!invoiceView || !invoiceView.classList.contains('active')) {
+      return;
+    }
+
+    const previewContainer = document.getElementById('invoice-preview-content');
+    if (!previewContainer) {
+      // Element not ready - retry after short delay
+      setTimeout(safeUpdateInvoicePreview, 100);
+      return;
+    }
+
+    try {
+      updateInvoicePreview();
+    } catch (error) {
+      console.error('Failed to update invoice preview:', error);
+      showError('Failed to generate invoice preview. Please try again.');
+    }
+  }
+
   function printInvoice() {
     if (!state.assessmentWatermark) {
       alert('This is an assessment prototype only - contact Kone Tshivhinda for licensing');
@@ -838,7 +887,7 @@ function getActivityLabel(type) {
           setTimeout(renderEntries, 0);
         } else if (target.dataset.view === 'invoice') {
           // Add a small delay to ensure the view is fully rendered
-          setTimeout(updateInvoicePreview, 50);
+          setTimeout(safeUpdateInvoicePreview, 50);
         } else if (target.dataset.view === 'capture') {
           setTimeout(renderCaptureFeed, 0);
         }
