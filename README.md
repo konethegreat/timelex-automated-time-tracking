@@ -60,4 +60,15 @@ This is a vanilla HTML/CSS/JS frontend application requiring no build steps for 
 3. Navigate to `index.html`.
 
 ---
+
+## Live Demo
+
+See the prototype in action: [https://timelex-automated-time-tracking.netlify.app/](https://timelex-automated-time-tracking.netlify.app/)
+
+![TimeLex Demo](https://img.shields.io/badge/Demo-Live%20Prototype-brightgreen)
+
+> **Note**: This is an assessment prototype with intentional limitations:
+> - Assessment watermark visible in all views and printouts
+> - Functionality will automatically disable after May 7, 2026
+> - Not designed for production use without formal licensing
 *For licensing inquiries beyond the assessment period, please contact the repository owner.*
