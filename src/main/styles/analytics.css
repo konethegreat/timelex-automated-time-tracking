@@ -1,0 +1,408 @@
+/*
+ * TimeLex — Analytics View + New UI Component Styles
+ * Copyright (c) 2026 Kone Tshivhinda
+ * ASSESSMENT PROTOTYPE - NOT FOR PRODUCTION USE
+ */
+
+/* ── ANALYTICS VIEW ────────────────────────────────────────────────────────── */
+.analytics-charts-row {
+  margin-bottom: 18px;
+}
+
+.chart-card {
+  overflow: hidden;
+}
+
+.chart-card-wide {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.chart-card-wide canvas {
+  width: 100% !important;
+  height: auto;
+  display: block;
+}
+
+.chart-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-top: 8px;
+}
+
+.chart-wrap canvas {
+  flex-shrink: 0;
+}
+
+/* Legend */
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  flex: 1;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+
+.legend-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+}
+
+/* Analytics table cells */
+.mono { font-family: var(--font-mono); }
+.muted { color: var(--text-muted); }
+.sm { font-size: 11px; }
+.center { text-align: center; }
+
+.empty-row {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 24px !important;
+}
+
+/* ── IDLE REMINDER BANNER ──────────────────────────────────────────────────── */
+#idle-banner {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 998;
+  background: linear-gradient(90deg, #1a0d00, #2a1800);
+  border-bottom: 1px solid var(--gold);
+  color: var(--gold);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  padding: 10px 20px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+#idle-banner button {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+#idle-banner button:hover {
+  background: var(--gold);
+  color: var(--dark, #0d0f14);
+}
+
+/* ── KEYBOARD SHORTCUTS MODAL ─────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 0;
+  width: 380px;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+  animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+  from { transform: scale(0.92) translateY(8px); opacity: 0; }
+  to   { transform: scale(1) translateY(0);      opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+
+.modal-header button {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.modal-header button:hover {
+  color: var(--text);
+  background: var(--border);
+}
+
+.shortcuts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 12px 0;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px;
+  transition: background 0.1s;
+}
+
+.shortcut-item:hover {
+  background: var(--bg-card2);
+}
+
+.shortcut-item span {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 7px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border2);
+  border-bottom: 2px solid var(--border2);
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+/* ── SIDEBAR ENHANCEMENTS ─────────────────────────────────────────────────── */
+.sidebar-footer {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.live-clock {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.shortcut-hint {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  font-size: 11px;
+  font-family: var(--font-sans);
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.shortcut-hint:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.shortcut-hint span {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* ── NAV SHORTCUT LABELS ──────────────────────────────────────────────────── */
+.nav-shortcut {
+  margin-left: auto;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  background: var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: var(--text-dim);
+}
+
+.nav-item.active .nav-shortcut {
+  background: rgba(201, 168, 76, 0.2);
+  color: var(--gold);
+}
+
+/* ── FEED FILTER BUTTONS ──────────────────────────────────────────────────── */
+.feed-filter-row {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  font-size: 10px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover {
+  border-color: var(--text-muted);
+  color: var(--text-muted);
+}
+
+.filter-btn.active {
+  background: var(--gold-dim);
+  border-color: rgba(201, 168, 76, 0.4);
+  color: var(--gold);
+}
+
+/* ── MATTER TAG IN FEED ───────────────────────────────────────────────────── */
+.matter-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--text-dim);
+}
+
+/* ── INLINE NARRATION EDITING ─────────────────────────────────────────────── */
+.narration-cell {
+  color: var(--text-muted);
+  font-size: 11px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
+  border-radius: 3px;
+  padding: 2px 4px !important;
+  transition: background 0.15s, outline 0.15s;
+}
+
+.narration-cell:hover {
+  background: var(--bg-card2);
+  outline: 1px solid var(--border2);
+  white-space: normal;
+}
+
+.narration-cell:focus {
+  outline: 1px solid var(--gold);
+  background: var(--bg-card2);
+  white-space: normal;
+  color: var(--text);
+}
+
+/* ── INVOICE SUMMARY BOX ──────────────────────────────────────────────────── */
+.inv-summary-box {
+  margin-top: 16px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--gold);
+  border-radius: 7px;
+  padding: 12px 14px;
+}
+
+.inv-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 3px 0;
+}
+
+.inv-summary-total {
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+  padding-top: 8px;
+  font-weight: 600;
+  color: var(--gold);
+  font-family: var(--font-mono);
+}
+
+/* ── ASSESSMENT WATERMARK ─────────────────────────────────────────────────── */
+#assessment-watermark {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.05);
+  color: var(--text-dim);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  z-index: 9999;
+  pointer-events: none;
+  font-family: var(--font-sans);
+  letter-spacing: 0.3px;
+}
