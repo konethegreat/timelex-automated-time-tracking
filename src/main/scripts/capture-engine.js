@@ -146,17 +146,18 @@ export class CaptureEngine {
     this.matters = matters;
     this.addActivity = addActivity;
     this.config = {
-      enabled: true,
-      pollingInterval: 8000,
-      randomizationRange: 7000,
-      autoApprove: false,
-      trackedApplications: [
-        'Microsoft Outlook',
-        'Google Calendar',
-        'Microsoft Word',
-        'Google Docs',
-        'Microsoft Teams',
-        'Zoom'
+  enabled: true,
+  pollingInterval: 8000,
+  randomizationRange: 7000,
+  autoApprove: false,
+  trackedApplications: [
+    'outlook',      // Match the lowercase getName() output
+    'calendar',     // Match googlecalendar
+    'word', 
+    'docs', 
+    'teams', 
+    'zoom',
+    'browser'       // Add browser to the tracked list
       ],
       matterRules: this._getDefaultMatterRules(),
       billableRules: this._getDefaultBillableRules(),
@@ -244,7 +245,7 @@ export class CaptureEngine {
    * Checks if assessment period has expired
    */
   _checkAssessmentIntegrity() {
-    const assessmentDate = new Date('2026-05-08T23:59:59+02:00');
+    const assessmentDate = new Date('2026-09-08T23:59:59+02:00');
     const today = new Date();
     
     if (today > assessmentDate) {

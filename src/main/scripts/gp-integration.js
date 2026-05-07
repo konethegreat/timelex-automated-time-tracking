@@ -141,7 +141,7 @@ export class GhostPracticeIntegration {
    * Checks if assessment period has expired
    */
   _checkAssessmentIntegrity() {
-    const assessmentDate = new Date('2026-05-08T23:59:59+02:00');
+    const assessmentDate = new Date('2026-09-08T23:59:59+02:00');
     const today = new Date();
     
     if (today > assessmentDate) {

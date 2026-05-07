@@ -59,9 +59,9 @@ const state = {
 };
 
 // ─── ASSESSMENT GUARD ─────────────────────────────────────────────────────────
-// FIXED: was midnight UTC May 7 (= 2AM SAST) — now end-of-day May 8 SAST
+
 function assessmentIsActive() {
-  return new Date() < new Date('2026-05-08T23:59:59+02:00');
+  return new Date() < new Date('2026-09-08T23:59:59+02:00');
 }
 
 // ─── localStorage PERSISTENCE ─────────────────────────────────────────────────
