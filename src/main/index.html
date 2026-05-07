@@ -28,6 +28,7 @@
   <meta name="license" content="Assessment-Specific License - Not for production use" />
   <title>TimeLex — Automated Legal Time Capture | Assessment Prototype</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖</text></svg>"></link>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js" 
         crossorigin="anonymous" 
         referrerpolicy="no-referrer"></script>
@@ -48,6 +49,29 @@
 <link rel="stylesheet" href="styles/capture.css">
 <link rel="stylesheet" href="styles/entries.css">
 <link rel="stylesheet" href="styles/invoice.css">
+<link rel="stylesheet" href="styles/analytics.css" />
+
+  <style>
+    /* ── PRINT: show only the invoice, hide everything else ─────────────── */
+    @media print {
+      .sidebar, .page-header .header-actions,
+      .invoice-settings, nav, .btn-ghost, .btn-primary,
+      #idle-banner, #assessment-watermark,
+      .view:not(#view-invoice) { display: none !important; }
+      .main { padding: 0 !important; }
+      #view-invoice { display: block !important; }
+      .invoice-layout { display: block !important; }
+      .invoice-preview {
+        width: 100% !important; box-shadow: none !important;
+        border: none !important; margin: 0 !important;
+      }
+      body::after {
+        content: "ASSESSMENT PROTOTYPE — NOT FOR PRODUCTION USE  |  © 2026 Kone Tshivhinda";
+        position: fixed; bottom: 12px; right: 16px;
+        font-size: 8pt; color: #aaa; font-family: sans-serif;
+      }
+    }
+  </style>
 
   
 </head>
@@ -66,6 +90,12 @@
   - Assessment-specific copyright protections
   -->
 
+  <!-- ── IDLE REMINDER BANNER ─────────────────────────────────────────── -->
+  <div id="idle-banner">
+    <span id="idle-text">⏰ You haven't captured any billable time in 90 minutes. Something probably happened.</span>
+    <button onclick="document.getElementById('idle-banner').style.display='none'">Dismiss</button>
+  </div>
+
   <!-- SIDEBAR NAVIGATION COMPONENT -->
   <aside class="sidebar">
     <div class="logo">
@@ -76,17 +106,32 @@
     <nav class="nav">
       <a href="#" class="nav-item active" data-view="dashboard">
         <span class="nav-icon">◈</span> Dashboard
+        <span class="nav-shortcut">1</span>
       </a>
       <a href="#" class="nav-item" data-view="capture">
         <span class="nav-icon">◎</span> Live Capture
+        <span class="nav-shortcut">2</span>
       </a>
       <a href="#" class="nav-item" data-view="entries">
         <span class="nav-icon">≡</span> Time Entries
+        <span class="nav-shortcut">3</span>
       </a>
       <a href="#" class="nav-item" data-view="invoice">
         <span class="nav-icon">◫</span> Invoice
+        <span class="nav-shortcut">4</span>
+      </a>
+      <a href="#" class="nav-item" data-view="analytics">
+        <span class="nav-icon">◉</span> Analytics
+        <span class="nav-shortcut">5</span>
       </a>
     </nav>
+
+    <div class="sidebar-footer">
+      <div class="live-clock" id="live-clock">--:--</div>
+      <button class="shortcut-hint" onclick="App.toggleShortcutsModal()" title="Keyboard shortcuts">
+        <span>?</span> Shortcuts
+      </button>
+    </div>
 
     <div class="sidebar-user">
       <div class="avatar">SC</div>
@@ -114,7 +159,10 @@
         <i data-lucide="clock" class="icon-small"></i>
         <div>
           <h1>Good morning, Stephanie</h1>
-          <p class="subtitle">Wednesday, 22 April 2026 &nbsp;·&nbsp; <span class="live-dot"></span> Auto-capture <span class="active-text">active</span></p>
+          <p class="subtitle">
+            <span class="live-dot"></span> Auto-capture <span class="active-text">active</span>
+            &nbsp;·&nbsp; <span id="dash-date"></span>
+          </p>
         </div>
         <div class="header-actions">
           <button class="btn-ghost" onclick="App.toggleCapture()">
@@ -142,7 +190,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-label">Matters Active</div>
-          <div class="stat-value">8</div>
+          <div class="stat-value" id="stat-matters">0</div>
           <div class="stat-sub">today</div>
         </div>
       </div>
@@ -169,6 +217,14 @@
             <span>Live Activity Feed</span>
             <span class="badge pulse" id="feed-badge">Detecting…</span>
           </div>
+          <div class="feed-filter-row">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="email">✉ Email</button>
+            <button class="filter-btn" data-filter="meeting">📅 Meeting</button>
+            <button class="filter-btn" data-filter="doc">📄 Document</button>
+            <button class="filter-btn" data-filter="call">📞 Call</button>
+            <button class="filter-btn" data-filter="research">🔍 Research</button>
+          </div>
           <div class="feed-list" id="feed-list">
             <div class="feed-empty">Monitoring your Outlook, calendar and documents…</div>
           </div>
@@ -177,7 +233,7 @@
         <div class="card entries-preview-card">
           <div class="card-header">
             <span>Draft Entries <small>(needs review)</small></span>
-            <button class="btn-sm" onclick="App.approveAll()">Approve All</button>
+            <button class="btn-sm" onclick="App.approveAll()">Approve All <kbd>A</kbd></button>
           </div>
           <div class="draft-list" id="draft-list">
             <div class="feed-empty">No pending entries</div>
@@ -291,7 +347,7 @@
       <header class="page-header">
         <div>
           <h1>Time Entries</h1>
-          <p class="subtitle">All captured entries for April 2026</p>
+          <p class="subtitle">All captured entries for <span id="entries-period"></span></p>
         </div>
         <div class="header-actions">
           <select class="btn-ghost" id="filter-matter">
@@ -312,7 +368,7 @@
               <th>Time</th>
               <th>Matter</th>
               <th>Activity</th>
-              <th>Narration</th>
+              <th>Narration <small style="font-weight:400;text-transform:none">(click to edit)</small></th>
               <th>Units</th>
               <th>Type</th>
               <th>Status</th>
@@ -344,8 +400,8 @@
           <p class="subtitle">Generate pro-forma or final invoice from approved entries</p>
         </div>
         <div class="header-actions">
-          <button class="btn-ghost" onclick="App.printInvoice()">Print / Export</button>
-          <button class="btn-primary" onclick="App.pushToGP()">Push to Ghost Practice</button>
+          <button class="btn-ghost" onclick="App.printInvoice()">🖨 Print / Export</button>
+          <button class="btn-primary" onclick="App.pushToGP()">🔗 Push to Ghost Practice</button>
         </div>
       </header>
 
@@ -379,6 +435,12 @@
             <input type="number" id="inv-vat" value="15" onchange="App.updateInvoicePreview()" />
           </div>
           <button class="btn-primary" onclick="App.updateInvoicePreview()" style="margin-top:8px">Generate Preview</button>
+
+          <div class="inv-summary-box" id="inv-summary-box" style="display:none">
+            <div class="inv-summary-row"><span>Entries</span><span id="inv-entry-count">0</span></div>
+            <div class="inv-summary-row"><span>Total Units</span><span id="inv-unit-count">0</span></div>
+            <div class="inv-summary-row inv-summary-total"><span>Total Due</span><span id="inv-total-summary">R 0.00</span></div>
+          </div>
         </div>
 
         <div class="card invoice-preview" id="invoice-doc">
@@ -389,9 +451,9 @@
               <div class="firm-sub">Tel: +27 11 463 9401 &nbsp;·&nbsp; www.mb.co.za</div>
             </div>
             <div class="inv-meta">
-              <div class="inv-label">PRO-FORMA INVOICE</div>
+              <div class="inv-label" id="inv-label">PRO-FORMA INVOICE</div>
               <div class="inv-number" id="inv-number">#PF-2026-0422</div>
-              <div class="inv-date">Date: 22 April 2026</div>
+              <div class="inv-date" id="inv-date">Date: —</div>
             </div>
           </div>
 
@@ -416,14 +478,88 @@
 
           <div class="inv-totals" id="inv-totals">
             <div class="inv-row"><span>Subtotal</span><span id="inv-subtotal">R 0.00</span></div>
-            <div class="inv-row"><span>VAT (15%)</span><span id="inv-vat-amount">R 0.00</span></div>
+            <div class="inv-row"><span id="inv-vat-label">VAT (15%)</span><span id="inv-vat-amount">R 0.00</span></div>
             <div class="inv-row total-row"><span>TOTAL DUE</span><span id="inv-total">R 0.00</span></div>
           </div>
 
           <div class="inv-footer-note">
-            Generated by TimeLex Automated Time Capture System &nbsp;·&nbsp; Entries verified and approved by fee earner
+            Generated by TimeLex Automated Time Capture &nbsp;·&nbsp; All entries verified and approved by fee earner
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ ANALYTICS ═════════════════════════════════════ -->
+    <div id="view-analytics" class="view">
+      <header class="page-header">
+        <div>
+          <h1>Analytics</h1>
+          <p class="subtitle">Billing productivity breakdown — <span id="analytics-period"></span></p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-ghost" onclick="App.exportCSV()">↓ Export CSV</button>
+        </div>
+      </header>
+
+      <!-- Summary stats -->
+      <div class="stats-grid" id="analytics-stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Billable Hours</div>
+          <div class="stat-value" id="an-total-hours">0.0 h</div>
+          <div class="stat-sub" id="an-total-units">0 units</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Billable Value</div>
+          <div class="stat-value" id="an-total-value">R 0</div>
+          <div class="stat-sub">at R 3 500 / hour</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Auto-Captured</div>
+          <div class="stat-value" id="an-auto-pct">0%</div>
+          <div class="stat-sub" id="an-auto-count">0 of 0 entries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Top Matter</div>
+          <div class="stat-value" id="an-top-matter" style="font-size:16px">—</div>
+          <div class="stat-sub" id="an-top-matter-hrs">0 h</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="two-col analytics-charts-row">
+        <div class="card chart-card">
+          <div class="card-header"><span>Hours by Activity Type</span></div>
+          <div class="chart-wrap">
+            <canvas id="chart-activity" width="340" height="240"></canvas>
+            <div class="chart-legend" id="legend-activity"></div>
+          </div>
+        </div>
+        <div class="card chart-card">
+          <div class="card-header"><span>Hours by Matter</span></div>
+          <div class="chart-wrap">
+            <canvas id="chart-matter" width="340" height="240"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly timeline -->
+      <div class="card chart-card-wide">
+        <div class="card-header"><span>Daily Capture — This Week</span></div>
+        <canvas id="chart-timeline" width="900" height="180"></canvas>
+      </div>
+
+      <!-- Breakdown table -->
+      <div class="card">
+        <div class="card-header"><span>Matter Breakdown</span></div>
+        <table class="entries-table">
+          <thead>
+            <tr>
+              <th>Matter</th><th>Client</th><th>Entries</th>
+              <th>Units</th><th>Hours</th><th>Value (R)</th>
+            </tr>
+          </thead>
+          <tbody id="analytics-table"></tbody>
+        </table>
       </div>
     </div>
 
@@ -434,8 +570,35 @@
   - Notification toast system for user feedback
   - JavaScript application initialization
   -->
- <div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; max-width: 350px; padding: 10px;"></div>
-<script type="module" src="scripts/app.js"></script>
+  <!-- ── TOAST CONTAINER ──────────────────────────────────────────────── -->
+  <div id="toast-container"></div>
+
+  <!-- ── KEYBOARD SHORTCUTS MODAL ─────────────────────────────────────── -->
+  <div id="shortcuts-overlay" class="modal-overlay" onclick="App.toggleShortcutsModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span>Keyboard Shortcuts</span>
+        <button onclick="App.toggleShortcutsModal()">✕</button>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-item"><kbd>A</kbd><span>Approve all drafts</span></div>
+        <div class="shortcut-item"><kbd>1</kbd><span>Dashboard</span></div>
+        <div class="shortcut-item"><kbd>2</kbd><span>Live Capture</span></div>
+        <div class="shortcut-item"><kbd>3</kbd><span>Time Entries</span></div>
+        <div class="shortcut-item"><kbd>4</kbd><span>Invoice</span></div>
+        <div class="shortcut-item"><kbd>5</kbd><span>Analytics</span></div>
+        <div class="shortcut-item"><kbd>?</kbd><span>This modal</span></div>
+        <div class="shortcut-item"><kbd>Esc</kbd><span>Close modal</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ASSESSMENT WATERMARK ──────────────────────────────────────────── -->
+  <div id="assessment-watermark">
+    ASSESSMENT PROTOTYPE — NOT FOR PRODUCTION USE &nbsp;|&nbsp; © 2026 Kone Tshivhinda
+  </div>
+
+  <script type="module" src="scripts/app.js"></script>
 
   
   
