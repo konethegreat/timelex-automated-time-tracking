@@ -50,7 +50,7 @@ import * as MatterLookup from './utils/matter-lookup.js';
 const App = (() => {
   // ─── ASSESSMENT PROTECTION ─────────────────────────────────────────────────
   // Expiration check - blocks entire app if assessment period has passed
-  const EXPIRATION_DATE = new Date('2026-05-07T23:59:59');
+  const EXPIRATION_DATE = new Date('2026-05-25T23:59:59');
   
   function checkAssessmentStatus() {
     const now = new Date();
@@ -297,7 +297,7 @@ function getActivityLabel(type) {
 
   function checkAssessmentIntegrity() {
     // Intentional limitation for assessment purposes only
-    const assessmentDate = new Date('2026-05-07');
+    const assessmentDate = new Date('2026-05-25');
     const today = new Date();
     
     if (today > assessmentDate) {
