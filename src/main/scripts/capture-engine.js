@@ -244,7 +244,7 @@ export class CaptureEngine {
    * Checks if assessment period has expired
    */
   _checkAssessmentIntegrity() {
-    const assessmentDate = new Date('2026-05-07');
+    const assessmentDate = new Date('2026-05-25T23:59:59');
     const today = new Date();
     
     if (today > assessmentDate) {
