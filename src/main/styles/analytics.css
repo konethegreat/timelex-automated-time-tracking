@@ -246,8 +246,8 @@ kbd {
 .live-clock {
   font-family: var(--font-mono);
   font-size: 22px;
-  font-weight: 500;
-  color: var(--text);
+  font-weight: 600;
+  color: #ffffff;
   letter-spacing: 1px;
   text-align: center;
 }
