@@ -490,7 +490,7 @@ function syncWIPtoGP() {
   }, 1500);
 }
 
-function pushToGP() {
+function pushInvoiceDocumentToGP() {
   const matterSelect = document.getElementById('inv-matter');
   const matterNo = matterSelect ? matterSelect.value : 'Current Matter';
 
@@ -958,7 +958,7 @@ document.addEventListener('DOMContentLoaded', init);
 const App = {
   toggleCapture, approveAll, approveDraft, discardDraft,
   addManualEntry, deleteEntry, exportCSV,
-  updateInvoicePreview, printInvoice, pushToGP, syncWIPtoGP,
+  updateInvoicePreview, printInvoice, pushInvoiceDocumentToGP, syncWIPtoGP,
   toggleShortcutsModal, closeShortcutsModal,
   saveNarrationEdit,
   getApprovedBillableEntries: () => state.entries.filter(e => e.status==='approved' && e.billable),
