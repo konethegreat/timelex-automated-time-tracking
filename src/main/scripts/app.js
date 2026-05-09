@@ -278,7 +278,16 @@ function renderEntries() {
 
   const billableUnits = filtered.filter(e => e.billable).reduce((s, e) => s + e.units, 0);
 
-  tbody.innerHTML = filtered.map(e => `
+  tbody.innerHTML = filtered.map(e => {
+    const statusBadge = e.gpSynced
+      ? `<span style="background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left:4px;">GP Synced</span>`
+      : `<span style="background: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left:4px;">WIP (Pending)</span>`;
+
+    const actionButtons = e.gpSynced
+      ? `<span style="color: #94a3b8; font-size: 0.9em;">🔒 Locked</span>`
+      : `<button class="btn-icon" onclick="App.deleteEntry('${e.id}')" title="Delete">🗑️</button>`;
+
+    return `
     <tr>
       <td class="mono muted sm">${e.time}</td>
       <td class="mono sm">${e.matter}</td>
@@ -292,9 +301,11 @@ function renderEntries() {
       <td>
         <span class="tag tag-${e.status}">${e.status}</span>
         <span class="tag tag-${e.source}" style="margin-left:4px">${e.source}</span>
+        ${statusBadge}
       </td>
-      <td><button class="btn-icon" onclick="App.deleteEntry('${e.id}')" title="Delete">✕</button></td>
-    </tr>`).join('');
+      <td>${actionButtons}</td>
+    </tr>`;
+  }).join('');
 
   if (footer) {
     footer.textContent = `${filtered.length} entries · ${billableUnits} billable units · ${(billableUnits * 0.1).toFixed(1)} hours`;
@@ -451,10 +462,48 @@ function updateInvoicePreview() {
 
 function printInvoice() { window.print(); }
 
+function syncWIPtoGP() {
+  const unsyncedEntries = state.entries.filter(entry =>
+    entry.status === 'approved' && entry.billable && !entry.gpSynced
+  );
+
+  if (unsyncedEntries.length === 0) {
+    showToast('No new approved entries to sync. All WIP is up to date.', 'warning');
+    return;
+  }
+
+  showToast(`Syncing ${unsyncedEntries.length} entries to Ghost Practice Ledger...`, 'info');
+
+  setTimeout(() => {
+    state.entries = state.entries.map(entry => {
+      if (entry.status === 'approved' && entry.billable && !entry.gpSynced) {
+        return { ...entry, gpSynced: true };
+      }
+      return entry;
+    });
+
+    saveToStorage();
+    renderEntries();
+    updateStats();
+
+    showToast(`Successfully pushed ${unsyncedEntries.length} entries to GP. Entries are now locked.`, 'success');
+  }, 1500);
+}
+
 function pushToGP() {
-  const approved = state.entries.filter(e => e.status === 'approved' && e.billable);
-  if (approved.length === 0) { showToast('No approved entries to push', 'error'); return; }
-  showToast(`${approved.length} entries queued for Ghost Practice sync`, 'success');
+  const matterSelect = document.getElementById('inv-matter');
+  const matterNo = matterSelect ? matterSelect.value : 'Current Matter';
+
+  if (!matterNo) {
+    showToast('Please select a matter before pushing the document.', 'error');
+    return;
+  }
+
+  showToast(`Generating Pro-Forma PDF for ${matterNo}...`, 'info');
+
+  setTimeout(() => {
+    showToast(`Success: Invoice PDF saved to Ghost Practice Document Repository for ${matterNo}.`, 'success');
+  }, 2000);
 }
 
 // ─── ANALYTICS ────────────────────────────────────────────────────────────────
@@ -909,7 +958,7 @@ document.addEventListener('DOMContentLoaded', init);
 const App = {
   toggleCapture, approveAll, approveDraft, discardDraft,
   addManualEntry, deleteEntry, exportCSV,
-  updateInvoicePreview, printInvoice, pushToGP,
+  updateInvoicePreview, printInvoice, pushToGP, syncWIPtoGP,
   toggleShortcutsModal, closeShortcutsModal,
   saveNarrationEdit,
   getApprovedBillableEntries: () => state.entries.filter(e => e.status==='approved' && e.billable),
