@@ -288,10 +288,10 @@
         </div>
         <div class="card">
           <div class="card-header"><span>Manual Entry</span></div>
-          <div class="manual-form">
+          <form class="manual-form" autocomplete="off" onsubmit="App.addManualEntry(event)">
             <div class="form-group">
               <label>Activity Type</label>
-              <select id="manual-type">
+              <select id="manual-type" autocomplete="off">
                 <option>Email</option>
                 <option>Meeting</option>
                 <option>Phone Call</option>
@@ -302,7 +302,7 @@
             </div>
             <div class="form-group">
               <label>Matter Number</label>
-              <input type="text" id="manual-matter" placeholder="e.g. 2024/0512-LIT" list="matters-list" />
+              <input type="text" id="manual-matter" placeholder="e.g. 2024/0512-LIT" list="matters-list" autocomplete="off" />
               <datalist id="matters-list">
                 <option value="2024/0512-LIT">Nkosi v Absa Bank</option>
                 <option value="2024/0888-LIT">Dlamini Urgent Application</option>
@@ -313,24 +313,24 @@
             </div>
             <div class="form-group">
               <label>Duration (minutes)</label>
-              <input type="number" id="manual-duration" value="6" min="6" step="6" />
+              <input type="number" id="manual-duration" value="6" min="6" step="6" autocomplete="off" />
             </div>
             <div class="form-group">
               <label>Narration</label>
-              <textarea id="manual-narration" rows="3" placeholder="Brief description of work done…"></textarea>
+              <textarea id="manual-narration" rows="3" placeholder="Brief description of work done…" autocomplete="off"></textarea>
             </div>
             <div class="form-group">
               <label>Billable?</label>
               <div class="toggle-row">
                 <label class="toggle">
-                  <input type="checkbox" id="manual-billable" checked />
+                  <input type="checkbox" id="manual-billable" checked autocomplete="off" />
                   <span class="slider"></span>
                 </label>
                 <span id="billable-label">Billable</span>
               </div>
             </div>
-            <button class="btn-primary" onclick="App.addManualEntry()">Add Entry</button>
-          </div>
+            <button type="submit" class="btn-primary">Add Entry</button>
+          </form>
         </div>
       </div>
     </div>
@@ -352,7 +352,7 @@
         <div class="header-actions">
           <button class="btn-ghost" onclick="App.exportCSV()">↓ Export CSV</button>
           <select class="btn-ghost" id="filter-matter">
-            <option value="">All Matters</option>
+            <option value="all">All Matters</option>
             <option value="2024/0512-LIT">2024/0512-LIT</option>
             <option value="2024/0888-LIT">2024/0888-LIT</option>
             <option value="2025/0103-COM">2025/0103-COM</option>

@@ -69,7 +69,9 @@ function saveToStorage() {
   try {
     localStorage.setItem(STORAGE_KEYS.ENTRIES, JSON.stringify(state.entries));
     localStorage.setItem(STORAGE_KEYS.DRAFTS,  JSON.stringify(state.drafts));
-  } catch (_) { /* storage unavailable */ }
+  } catch (err) {
+    void err; /* QuotaExceededError, SecurityError, private mode, etc. */
+  }
 }
 
 function loadFromStorage() {
@@ -79,6 +81,14 @@ function loadFromStorage() {
     if (e) state.entries = JSON.parse(e);
     if (d) state.drafts  = JSON.parse(d);
   } catch (_) { /* corrupt data — fall through to seed */ }
+}
+
+function draftMatterInputFor(draftId) {
+  const id = String(draftId);
+  const sel = typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+    ? `input.draft-matter-input[data-draft-id="${CSS.escape(id)}"]`
+    : `input.draft-matter-input[data-draft-id="${id.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"]`;
+  return document.querySelector(sel);
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -206,17 +216,18 @@ function renderDrafts() {
     return;
   }
   el.innerHTML = state.drafts.map(d => `
-    <div class="draft-item" id="draft-${d.id}">
+    <div class="draft-item" data-draft-id="${escHtml(d.id)}">
       <div class="draft-header">
         <span class="draft-type">${d.icon} ${d.type}</span>
         <span class="draft-units">${d.units} unit${d.units !== 1 ? 's' : ''} · ${d.time}</span>
       </div>
       <div class="draft-narration">${escHtml(d.narration)}</div>
       <div class="draft-matter-row">
-        <input class="draft-matter-input" list="matters-list"
-          value="${escHtml(d.matter)}" id="dm-${d.id}" placeholder="Matter #" />
-        <button class="btn-approve" onclick="App.approveDraft('${d.id}')">✓ Approve</button>
-        <button class="btn-discard" onclick="App.discardDraft('${d.id}')">✕</button>
+        <input class="draft-matter-input" type="text" list="matters-list" autocomplete="off"
+          data-draft-id="${escHtml(d.id)}"
+          value="${escHtml(d.matter)}" placeholder="Matter #" />
+        <button type="button" class="btn-approve" onclick="App.approveDraft('${d.id}')">✓ Approve</button>
+        <button type="button" class="btn-discard" onclick="App.discardDraft('${d.id}')">✕</button>
       </div>
     </div>`).join('');
 }
@@ -225,7 +236,7 @@ function approveDraft(id) {
   const idx = state.drafts.findIndex(d => d.id === id);
   if (idx === -1) return;
   const draft = { ...state.drafts[idx] };
-  const inputEl = document.getElementById('dm-' + id);
+  const inputEl = draftMatterInputFor(id);
   if (inputEl) draft.matter = inputEl.value.trim() || draft.matter;
   if (!draft.matter) { showToast('Please enter a matter number', 'error'); return; }
 
@@ -261,14 +272,16 @@ function discardDraft(id) {
 
 // ─── ENTRIES TABLE ────────────────────────────────────────────────────────────
 function renderEntries() {
-  const filterMatter = document.getElementById('filter-matter')?.value || '';
+  const raw = document.getElementById('filter-matter')?.value;
+  const filterMatter = raw == null ? '' : String(raw).trim();
+  const showAll = !filterMatter || filterMatter.toLowerCase() === 'all';
   const tbody  = document.getElementById('entries-body');
   const footer = document.getElementById('entries-summary');
   if (!tbody) return;
 
-  const filtered = filterMatter
-    ? state.entries.filter(e => e.matter === filterMatter)
-    : state.entries;
+  const filtered = showAll
+    ? state.entries
+    : state.entries.filter(e => e.matter === filterMatter);
 
   if (filtered.length === 0) {
     tbody.innerHTML = '<tr><td colspan="8" class="empty-row">No entries yet — approve some drafts</td></tr>';
@@ -332,7 +345,9 @@ function deleteEntry(id) {
 }
 
 // ─── MANUAL ENTRY ──────────────────────────────────────────────────────────────
-function addManualEntry() {
+function addManualEntry(e) {
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+
   const type      = document.getElementById('manual-type').value;
   const matter    = document.getElementById('manual-matter').value.trim();
   const mins      = parseInt(document.getElementById('manual-duration').value) || 6;
@@ -355,11 +370,18 @@ function addManualEntry() {
   renderEntries();
   updateStats();
   saveToStorage();
-  showToast('Manual entry added', 'success');
 
   document.getElementById('manual-matter').value    = '';
   document.getElementById('manual-narration').value = '';
   document.getElementById('manual-duration').value  = 6;
+
+  const onEntriesTab = document.getElementById('view-entries')?.classList.contains('active');
+  if (!onEntriesTab) {
+    showToast('Manual entry added — opening Time Entries', 'success');
+    navigateTo('entries');
+  } else {
+    showToast('Manual entry added', 'success');
+  }
 }
 
 // ─── CSV EXPORT ───────────────────────────────────────────────────────────────
@@ -494,8 +516,8 @@ function pushInvoiceDocumentToGP() {
   const matterSelect = document.getElementById('inv-matter');
   const matterNo = matterSelect ? matterSelect.value : 'Current Matter';
 
-  if (!matterNo) {
-    showToast('Please select a matter before pushing the document.', 'error');
+  if (!matterNo || matterNo === 'all') {
+    showToast('Please select a specific matter before pushing the document.', 'error');
     return;
   }
 
