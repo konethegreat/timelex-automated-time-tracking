@@ -1,0 +1,13 @@
+# Dependencies: install with `npm ci` (package-lock.json is committed)
+node_modules/
+
+# Environment files and logs
+.env
+.env.*
+*.log
+npm-debug.log*
+
+# OS and Office temporary files
+.DS_Store
+Thumbs.db
+~$*
